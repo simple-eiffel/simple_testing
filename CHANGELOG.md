@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Add SCOOP concurrency capability
+- Add simple_testing library with enhanced assertions
+- first commit
+
 ## [1.0.0] - 2025-12-08
 
 ### Added
