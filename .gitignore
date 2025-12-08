@@ -1,0 +1,5 @@
+EIFGENs/
+*.swp
+*.bak
+.DS_Store
+exception_trace.log

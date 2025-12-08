@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple_testing - Enhanced Eiffel Test Framework</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="images/logo.png" alt="simple_testing logo" class="logo">
+            <h1>simple_testing</h1>
+            <p class="tagline">Enhanced Test Framework for Eiffel</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <a href="#overview">Overview</a>
+            <a href="#classes">Classes</a>
+            <a href="#assertions">Assertions</a>
+            <a href="#installation">Installation</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section id="overview">
+            <h2>Overview</h2>
+            <p><code>simple_testing</code> provides a rich set of assertion methods that extend the standard EQA_TEST_SET framework. Inherit from TEST_SET_BASE to get access to 40+ assertion methods for booleans, numbers, strings, collections, and object references.</p>
+        </section>
+
+        <section id="classes">
+            <h2>Classes</h2>
+            <div class="class-grid">
+                <div class="class-card">
+                    <h3>TEST_SET_BASE</h3>
+                    <p>Deferred base class providing 40+ assertion methods. Inherit from this class instead of EQA_TEST_SET.</p>
+                    <ul>
+                        <li>Boolean assertions</li>
+                        <li>Object/Reference assertions</li>
+                        <li>Numeric assertions (INTEGER, REAL_64, NATURAL_64)</li>
+                        <li>String assertions with detailed diff</li>
+                        <li>Collection assertions</li>
+                    </ul>
+                </div>
+                <div class="class-card">
+                    <h3>TEST_SET_BRIDGE</h3>
+                    <p>Bridge class for accessing features exported to {NONE} in tests.</p>
+                    <p>Export your internal features to {TEST_SET_BRIDGE} and inherit from this class in your test set to access them.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="assertions">
+            <h2>Assertion Reference</h2>
+
+            <h3>Boolean Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_true</code></td><td>Assert condition is True</td></tr>
+                <tr><td><code>assert_false</code></td><td>Assert condition is False</td></tr>
+                <tr><td><code>refute</code></td><td>Assert condition is False (alias)</td></tr>
+            </table>
+
+            <h3>Object/Reference Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_attached</code></td><td>Assert object is not Void</td></tr>
+                <tr><td><code>assert_void</code></td><td>Assert object is Void</td></tr>
+                <tr><td><code>assert_same_reference</code></td><td>Assert same object reference (=)</td></tr>
+                <tr><td><code>assert_not_same_reference</code></td><td>Assert different object references</td></tr>
+                <tr><td><code>assert_equal</code></td><td>Assert objects are equal (is_equal)</td></tr>
+                <tr><td><code>assert_not_equal</code></td><td>Assert objects are not equal</td></tr>
+            </table>
+
+            <h3>Integer Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_integers_equal</code></td><td>Assert integers are equal with detailed message</td></tr>
+                <tr><td><code>assert_greater_than</code></td><td>Assert value > threshold</td></tr>
+                <tr><td><code>assert_greater_or_equal</code></td><td>Assert value >= threshold</td></tr>
+                <tr><td><code>assert_less_than</code></td><td>Assert value < threshold</td></tr>
+                <tr><td><code>assert_less_or_equal</code></td><td>Assert value <= threshold</td></tr>
+                <tr><td><code>assert_in_range</code></td><td>Assert value in [min..max]</td></tr>
+                <tr><td><code>assert_positive</code></td><td>Assert value > 0</td></tr>
+                <tr><td><code>assert_negative</code></td><td>Assert value < 0</td></tr>
+                <tr><td><code>assert_zero</code></td><td>Assert value = 0</td></tr>
+                <tr><td><code>assert_non_zero</code></td><td>Assert value /= 0</td></tr>
+                <tr><td><code>assert_non_negative</code></td><td>Assert value >= 0</td></tr>
+                <tr><td><code>assert_non_positive</code></td><td>Assert value <= 0</td></tr>
+                <tr><td><code>assert_naturals_equal</code></td><td>Assert NATURAL_64 values are equal</td></tr>
+            </table>
+
+            <h3>Real Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_reals_equal</code></td><td>Assert reals equal within epsilon</td></tr>
+                <tr><td><code>assert_real_greater_than</code></td><td>Assert real > threshold</td></tr>
+                <tr><td><code>assert_real_less_than</code></td><td>Assert real < threshold</td></tr>
+                <tr><td><code>assert_real_in_range</code></td><td>Assert real in [min..max]</td></tr>
+            </table>
+
+            <h3>String Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_string_contains</code></td><td>Assert string contains substring</td></tr>
+                <tr><td><code>assert_string_not_contains</code></td><td>Assert string does not contain substring</td></tr>
+                <tr><td><code>assert_string_starts_with</code></td><td>Assert string starts with prefix</td></tr>
+                <tr><td><code>assert_string_ends_with</code></td><td>Assert string ends with suffix</td></tr>
+                <tr><td><code>assert_string_empty</code></td><td>Assert string is empty</td></tr>
+                <tr><td><code>assert_string_not_empty</code></td><td>Assert string is not empty</td></tr>
+                <tr><td><code>assert_string_length</code></td><td>Assert string has expected length</td></tr>
+                <tr><td><code>assert_strings_equal_case_insensitive</code></td><td>Assert strings equal ignoring case</td></tr>
+                <tr><td><code>assert_strings_equal_diff</code></td><td>Assert strings equal with detailed diff on failure</td></tr>
+            </table>
+
+            <h3>Collection Assertions</h3>
+            <table>
+                <tr><th>Method</th><th>Description</th></tr>
+                <tr><td><code>assert_array_has_item</code></td><td>Assert array contains item</td></tr>
+                <tr><td><code>assert_array_not_has_item</code></td><td>Assert array does not contain item</td></tr>
+                <tr><td><code>assert_iterable_is_empty</code></td><td>Assert iterable is empty</td></tr>
+                <tr><td><code>assert_iterable_not_empty</code></td><td>Assert iterable is not empty</td></tr>
+                <tr><td><code>assert_count_equals</code></td><td>Assert collection has expected count</td></tr>
+            </table>
+        </section>
+
+        <section id="installation">
+            <h2>Installation</h2>
+            <h3>1. Set Environment Variable</h3>
+            <pre><code>SIMPLE_TESTING=D:\prod\simple_testing</code></pre>
+
+            <h3>2. Add to ECF</h3>
+            <pre><code>&lt;library name="simple_testing" location="$SIMPLE_TESTING\simple_testing.ecf"/&gt;</code></pre>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>simple_testing - Part of the simple_* Eiffel library collection</p>
+            <p>Author: Larry Rix | License: MIT</p>
+        </div>
+    </footer>
+</body>
+</html>
