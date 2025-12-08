@@ -3,144 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>simple_testing - Enhanced Eiffel Test Framework</title>
+    <title>simple_testing - Enhanced Test Framework for Eiffel</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="images/logo.png">
 </head>
 <body>
     <header>
-        <div class="container">
-            <img src="images/logo.png" alt="simple_testing logo" class="logo">
-            <h1>simple_testing</h1>
-            <p class="tagline">Enhanced Test Framework for Eiffel</p>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">Enhanced Test Framework for Eiffel</p>
+        <div class="badges">
+            <span class="badge badge-version">v1.0.0</span>
+            <span class="badge badge-license">MIT</span>
         </div>
     </header>
 
     <nav>
-        <div class="container">
-            <a href="#overview">Overview</a>
-            <a href="#classes">Classes</a>
-            <a href="#assertions">Assertions</a>
-            <a href="#installation">Installation</a>
-        </div>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#usage">Usage</a></li>
+            <li><a href="#api">API Reference</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
     </nav>
 
-    <main class="container">
+    <main>
         <section id="overview">
             <h2>Overview</h2>
-            <p><code>simple_testing</code> provides a rich set of assertion methods that extend the standard EQA_TEST_SET framework. Inherit from TEST_SET_BASE to get access to 40+ assertion methods for booleans, numbers, strings, collections, and object references.</p>
+            <p>
+                <strong>simple_testing</strong> provides 40+ assertion methods that extend the standard
+                EQA_TEST_SET framework. Inherit from TEST_SET_BASE to get rich assertions for booleans,
+                numbers, strings, collections, and object references with detailed failure messages.
+            </p>
         </section>
 
-        <section id="classes">
-            <h2>Classes</h2>
-            <div class="class-grid">
-                <div class="class-card">
-                    <h3>TEST_SET_BASE</h3>
-                    <p>Deferred base class providing 40+ assertion methods. Inherit from this class instead of EQA_TEST_SET.</p>
-                    <ul>
-                        <li>Boolean assertions</li>
-                        <li>Object/Reference assertions</li>
-                        <li>Numeric assertions (INTEGER, REAL_64, NATURAL_64)</li>
-                        <li>String assertions with detailed diff</li>
-                        <li>Collection assertions</li>
-                    </ul>
+        <section id="features">
+            <h2>Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Boolean Assertions</h4>
+                    <p>assert_true, assert_false, refute</p>
                 </div>
-                <div class="class-card">
-                    <h3>TEST_SET_BRIDGE</h3>
-                    <p>Bridge class for accessing features exported to {NONE} in tests.</p>
-                    <p>Export your internal features to {TEST_SET_BRIDGE} and inherit from this class in your test set to access them.</p>
+                <div class="feature-card">
+                    <h4>Object Assertions</h4>
+                    <p>assert_attached, assert_void, assert_equal, assert_same_reference</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Integer Assertions</h4>
+                    <p>assert_greater_than, assert_less_than, assert_in_range, assert_positive</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Real Assertions</h4>
+                    <p>assert_reals_equal (with epsilon), assert_real_in_range</p>
+                </div>
+                <div class="feature-card">
+                    <h4>String Assertions</h4>
+                    <p>assert_string_contains, assert_starts_with, assert_strings_equal_diff</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Collection Assertions</h4>
+                    <p>assert_array_has_item, assert_iterable_is_empty, assert_count_equals</p>
                 </div>
             </div>
         </section>
 
-        <section id="assertions">
-            <h2>Assertion Reference</h2>
-
-            <h3>Boolean Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_true</code></td><td>Assert condition is True</td></tr>
-                <tr><td><code>assert_false</code></td><td>Assert condition is False</td></tr>
-                <tr><td><code>refute</code></td><td>Assert condition is False (alias)</td></tr>
-            </table>
-
-            <h3>Object/Reference Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_attached</code></td><td>Assert object is not Void</td></tr>
-                <tr><td><code>assert_void</code></td><td>Assert object is Void</td></tr>
-                <tr><td><code>assert_same_reference</code></td><td>Assert same object reference (=)</td></tr>
-                <tr><td><code>assert_not_same_reference</code></td><td>Assert different object references</td></tr>
-                <tr><td><code>assert_equal</code></td><td>Assert objects are equal (is_equal)</td></tr>
-                <tr><td><code>assert_not_equal</code></td><td>Assert objects are not equal</td></tr>
-            </table>
-
-            <h3>Integer Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_integers_equal</code></td><td>Assert integers are equal with detailed message</td></tr>
-                <tr><td><code>assert_greater_than</code></td><td>Assert value > threshold</td></tr>
-                <tr><td><code>assert_greater_or_equal</code></td><td>Assert value >= threshold</td></tr>
-                <tr><td><code>assert_less_than</code></td><td>Assert value < threshold</td></tr>
-                <tr><td><code>assert_less_or_equal</code></td><td>Assert value <= threshold</td></tr>
-                <tr><td><code>assert_in_range</code></td><td>Assert value in [min..max]</td></tr>
-                <tr><td><code>assert_positive</code></td><td>Assert value > 0</td></tr>
-                <tr><td><code>assert_negative</code></td><td>Assert value < 0</td></tr>
-                <tr><td><code>assert_zero</code></td><td>Assert value = 0</td></tr>
-                <tr><td><code>assert_non_zero</code></td><td>Assert value /= 0</td></tr>
-                <tr><td><code>assert_non_negative</code></td><td>Assert value >= 0</td></tr>
-                <tr><td><code>assert_non_positive</code></td><td>Assert value <= 0</td></tr>
-                <tr><td><code>assert_naturals_equal</code></td><td>Assert NATURAL_64 values are equal</td></tr>
-            </table>
-
-            <h3>Real Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_reals_equal</code></td><td>Assert reals equal within epsilon</td></tr>
-                <tr><td><code>assert_real_greater_than</code></td><td>Assert real > threshold</td></tr>
-                <tr><td><code>assert_real_less_than</code></td><td>Assert real < threshold</td></tr>
-                <tr><td><code>assert_real_in_range</code></td><td>Assert real in [min..max]</td></tr>
-            </table>
-
-            <h3>String Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_string_contains</code></td><td>Assert string contains substring</td></tr>
-                <tr><td><code>assert_string_not_contains</code></td><td>Assert string does not contain substring</td></tr>
-                <tr><td><code>assert_string_starts_with</code></td><td>Assert string starts with prefix</td></tr>
-                <tr><td><code>assert_string_ends_with</code></td><td>Assert string ends with suffix</td></tr>
-                <tr><td><code>assert_string_empty</code></td><td>Assert string is empty</td></tr>
-                <tr><td><code>assert_string_not_empty</code></td><td>Assert string is not empty</td></tr>
-                <tr><td><code>assert_string_length</code></td><td>Assert string has expected length</td></tr>
-                <tr><td><code>assert_strings_equal_case_insensitive</code></td><td>Assert strings equal ignoring case</td></tr>
-                <tr><td><code>assert_strings_equal_diff</code></td><td>Assert strings equal with detailed diff on failure</td></tr>
-            </table>
-
-            <h3>Collection Assertions</h3>
-            <table>
-                <tr><th>Method</th><th>Description</th></tr>
-                <tr><td><code>assert_array_has_item</code></td><td>Assert array contains item</td></tr>
-                <tr><td><code>assert_array_not_has_item</code></td><td>Assert array does not contain item</td></tr>
-                <tr><td><code>assert_iterable_is_empty</code></td><td>Assert iterable is empty</td></tr>
-                <tr><td><code>assert_iterable_not_empty</code></td><td>Assert iterable is not empty</td></tr>
-                <tr><td><code>assert_count_equals</code></td><td>Assert collection has expected count</td></tr>
-            </table>
-        </section>
-
         <section id="installation">
             <h2>Installation</h2>
-            <h3>1. Set Environment Variable</h3>
-            <pre><code>SIMPLE_TESTING=D:\prod\simple_testing</code></pre>
-
-            <h3>2. Add to ECF</h3>
             <pre><code>&lt;library name="simple_testing" location="$SIMPLE_TESTING\simple_testing.ecf"/&gt;</code></pre>
+        </section>
+
+        <section id="usage">
+            <h2>Quick Start</h2>
+            <div class="quick-start">
+                <pre><code><span class="keyword">class</span>
+    <span class="type">MY_TEST_SET</span>
+
+<span class="keyword">inherit</span>
+    <span class="type">TEST_SET_BASE</span>
+
+<span class="keyword">feature</span> <span class="comment">-- Tests</span>
+
+    test_user_creation
+        <span class="keyword">local</span>
+            user: <span class="type">USER</span>
+        <span class="keyword">do</span>
+            <span class="keyword">create</span> user.<span class="feature">make</span> (<span class="string">"Alice"</span>, 25)
+
+            <span class="comment">-- Boolean assertions</span>
+            assert_true (<span class="string">"is_active"</span>, user.<span class="feature">is_active</span>)
+
+            <span class="comment">-- String assertions</span>
+            assert_string_contains (<span class="string">"has_name"</span>, user.<span class="feature">name</span>, <span class="string">"Ali"</span>)
+            assert_strings_equal_diff (<span class="string">"exact_name"</span>, <span class="string">"Alice"</span>, user.<span class="feature">name</span>)
+
+            <span class="comment">-- Integer assertions</span>
+            assert_integers_equal (<span class="string">"age"</span>, 25, user.<span class="feature">age</span>)
+            assert_in_range (<span class="string">"valid_age"</span>, user.<span class="feature">age</span>, 0, 120)
+
+            <span class="comment">-- Object assertions</span>
+            assert_attached (<span class="string">"has_profile"</span>, user.<span class="feature">profile</span>)
+        <span class="keyword">end</span>
+
+<span class="keyword">end</span></code></pre>
+            </div>
+        </section>
+
+        <section id="api">
+            <h2>API Reference</h2>
+
+            <div class="api-section">
+                <h3>Boolean Assertions</h3>
+                <div class="signature">assert_true (tag: STRING; condition: BOOLEAN)</div>
+                <div class="signature">assert_false (tag: STRING; condition: BOOLEAN)</div>
+                <div class="signature">refute (tag: STRING; condition: BOOLEAN)</div>
+            </div>
+
+            <div class="api-section">
+                <h3>Object/Reference Assertions</h3>
+                <div class="signature">assert_attached (tag: STRING; object: detachable ANY)</div>
+                <div class="signature">assert_void (tag: STRING; object: detachable ANY)</div>
+                <div class="signature">assert_same_reference (tag: STRING; expected, actual: ANY)</div>
+                <div class="signature">assert_equal (tag: STRING; expected, actual: ANY)</div>
+                <div class="signature">assert_not_equal (tag: STRING; expected, actual: ANY)</div>
+            </div>
+
+            <div class="api-section">
+                <h3>Integer Assertions</h3>
+                <div class="signature">assert_integers_equal (tag: STRING; expected, actual: INTEGER)</div>
+                <div class="signature">assert_greater_than (tag: STRING; value, threshold: INTEGER)</div>
+                <div class="signature">assert_less_than (tag: STRING; value, threshold: INTEGER)</div>
+                <div class="signature">assert_in_range (tag: STRING; value, min, max: INTEGER)</div>
+                <div class="signature">assert_positive (tag: STRING; value: INTEGER)</div>
+                <div class="signature">assert_negative (tag: STRING; value: INTEGER)</div>
+                <div class="signature">assert_zero (tag: STRING; value: INTEGER)</div>
+            </div>
+
+            <div class="api-section">
+                <h3>Real Assertions</h3>
+                <div class="signature">assert_reals_equal (tag: STRING; expected, actual, epsilon: REAL_64)</div>
+                <div class="signature">assert_real_in_range (tag: STRING; value, min, max: REAL_64)</div>
+            </div>
+
+            <div class="api-section">
+                <h3>String Assertions</h3>
+                <div class="signature">assert_string_contains (tag, haystack, needle: STRING)</div>
+                <div class="signature">assert_string_starts_with (tag, str, prefix: STRING)</div>
+                <div class="signature">assert_string_ends_with (tag, str, suffix: STRING)</div>
+                <div class="signature">assert_string_empty (tag, str: STRING)</div>
+                <div class="signature">assert_strings_equal_diff (tag, expected, actual: STRING)</div>
+            </div>
+
+            <div class="api-section">
+                <h3>Collection Assertions</h3>
+                <div class="signature">assert_array_has_item (tag: STRING; arr: ARRAY [ANY]; item: ANY)</div>
+                <div class="signature">assert_iterable_is_empty (tag: STRING; iterable: ITERABLE [ANY])</div>
+                <div class="signature">assert_count_equals (tag: STRING; collection: FINITE [ANY]; expected: INTEGER)</div>
+            </div>
         </section>
     </main>
 
     <footer>
-        <div class="container">
-            <p>simple_testing - Part of the simple_* Eiffel library collection</p>
-            <p>Author: Larry Rix | License: MIT</p>
-        </div>
+        <p>simple_testing is part of the <a href="https://github.com/simple-eiffel">simple_*</a> library collection.</p>
+        <p class="copyright">&copy; 2024-2025 Larry Rix. MIT License.</p>
     </footer>
 </body>
 </html>
