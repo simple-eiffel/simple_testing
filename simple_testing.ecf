@@ -21,7 +21,7 @@
 		<cluster name="src" location=".\src\" recursive="true"/>
 	</target>
 	<target name="simple_testing_tests" extends="simple_testing">
-		<root class="LIB_TESTS" feature="default_create"/>
+		<root class="TEST_APP" feature="make"/>
 		<cluster name="test_classes" location=".\testing\" recursive="true"/>
 	</target>
 </system>
