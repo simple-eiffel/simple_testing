@@ -1,0 +1,9 @@
+{
+  "name": "simple_testing",
+  "version": "0.1.0",
+  "description": "Enhanced test framework with comprehensive assertions for Eiffel testing.",
+  "author": "Larry Rix",
+  "license": "MIT",
+  "category": "testing",
+  "keywords": ["testing", "unit", "assertions", "tdd"]
+}
