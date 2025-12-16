@@ -19,14 +19,14 @@ Enhanced test framework for Eiffel with comprehensive assertions.
 
 ## Installation
 
-1. Set the environment variable:
+1. Set the ecosystem environment variable (one-time setup for all simple_* libraries):
    ```
-   SIMPLE_TESTING=D:\prod\simple_testing
+   SIMPLE_EIFFEL=D:\prod
    ```
 
 2. Add to your ECF file:
    ```xml
-   <library name="simple_testing" location="$SIMPLE_TESTING\simple_testing.ecf"/>
+   <library name="simple_testing" location="$SIMPLE_EIFFEL/simple_testing/simple_testing.ecf"/>
    ```
 
 ## Usage
