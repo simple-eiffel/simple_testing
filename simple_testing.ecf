@@ -13,10 +13,11 @@
 		<setting name="console_application" value="true"/>
 		<setting name="dead_code_removal" value="feature"/>
 		<capability>
-			<concurrency support="scoop" use="thread"/>
-			<void_safety support="all"/>
+			<concurrency support="scoop" use="scoop"/>
+			<void_safety support="all" use="all"/>
 		</capability>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="simple_mml" location="$SIMPLE_EIFFEL\simple_mml\simple_mml.ecf"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
 		<cluster name="src" location=".\src\" recursive="true"/>
 	</target>

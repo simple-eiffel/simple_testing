@@ -54,26 +54,26 @@ feature -- Boolean assertions
 
 	refute (a_tag: READABLE_STRING_GENERAL; a_condition: BOOLEAN)
 			-- Assert that `a_condition' is False
-		require
-			a_tag_not_void: a_tag /= Void
 		do
 			assert (a_tag, not a_condition)
+		ensure
+			condition_was_false: not a_condition
 		end
 
 	assert_true (a_tag: READABLE_STRING_GENERAL; a_condition: BOOLEAN)
 			-- Assert that `a_condition' is True
-		require
-			a_tag_not_void: a_tag /= Void
 		do
 			assert (a_tag, a_condition)
+		ensure
+			condition_was_true: a_condition
 		end
 
 	assert_false (a_tag: READABLE_STRING_GENERAL; a_condition: BOOLEAN)
 			-- Assert that `a_condition' is False
-		require
-			a_tag_not_void: a_tag /= Void
 		do
 			assert (a_tag, not a_condition)
+		ensure
+			condition_was_false: not a_condition
 		end
 
 feature -- Object/Reference assertions
@@ -87,6 +87,8 @@ feature -- Object/Reference assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected attached object, got Void")
 			assert (msg, object /= Void)
+		ensure then
+			object_attached: object /= Void
 		end
 
 	assert_void (a_tag: READABLE_STRING_GENERAL; object: detachable ANY)
@@ -98,12 +100,12 @@ feature -- Object/Reference assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected Void")
 			assert (msg, object = Void)
+		ensure then
+			object_void: object = Void
 		end
 
 	assert_same_reference (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: ANY)
 			-- Assert `a_expected' and `a_actual' are the same object (=)
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -111,12 +113,12 @@ feature -- Object/Reference assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected same object reference")
 			assert (msg, a_expected = a_actual)
+		ensure
+			same_reference: a_expected = a_actual
 		end
 
 	assert_not_same_reference (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: ANY)
 			-- Assert `a_expected' and `a_actual' are different objects
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -124,6 +126,8 @@ feature -- Object/Reference assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected different object references")
 			assert (msg, a_expected /= a_actual)
+		ensure
+			different_references: a_expected /= a_actual
 		end
 
 feature -- Equality assertions
@@ -186,12 +190,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (", got ")
 			msg.append_string_general (actual.out)
 			assert (msg, expected = actual)
+		ensure then
+			values_equal: expected = actual
 		end
 
 	assert_naturals_equal (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: NATURAL_64)
 			-- Assert `a_expected' = `a_actual' with detailed message
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -202,12 +206,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (", got ")
 			msg.append_string_general (a_actual.out)
 			assert (msg, a_expected = a_actual)
+		ensure
+			values_equal: a_expected = a_actual
 		end
 
 	assert_greater_than (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: INTEGER)
 			-- Assert that `a_value' > `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -218,12 +222,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (" > ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value > a_threshold)
+		ensure
+			value_greater: a_value > a_threshold
 		end
 
 	assert_greater_or_equal (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: INTEGER)
 			-- Assert that `a_value' >= `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -234,12 +238,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (" >= ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value >= a_threshold)
+		ensure
+			value_greater_or_equal: a_value >= a_threshold
 		end
 
 	assert_less_than (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: INTEGER)
 			-- Assert that `a_value' < `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -250,12 +254,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (" < ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value < a_threshold)
+		ensure
+			value_less: a_value < a_threshold
 		end
 
 	assert_less_or_equal (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: INTEGER)
 			-- Assert that `a_value' <= `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -266,12 +270,13 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (" <= ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value <= a_threshold)
+		ensure
+			value_less_or_equal: a_value <= a_threshold
 		end
 
 	assert_in_range (a_tag: READABLE_STRING_GENERAL; a_value, a_min, a_max: INTEGER)
 			-- Assert that `a_min' <= `a_value' <= `a_max'
 		require
-			a_tag_not_void: a_tag /= Void
 			valid_range: a_min <= a_max
 		local
 			msg: STRING_32
@@ -286,12 +291,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (a_max.out)
 			msg.append_string_general ("]")
 			assert (msg, a_value >= a_min and a_value <= a_max)
+		ensure
+			value_in_range: a_value >= a_min and a_value <= a_max
 		end
 
 	assert_positive (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' > 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -300,12 +305,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected positive, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value > 0)
+		ensure
+			value_positive: a_value > 0
 		end
 
 	assert_negative (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' < 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -314,12 +319,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected negative, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value < 0)
+		ensure
+			value_negative: a_value < 0
 		end
 
 	assert_zero (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' = 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -328,12 +333,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected zero, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value = 0)
+		ensure
+			value_zero: a_value = 0
 		end
 
 	assert_non_zero (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' /= 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -342,12 +347,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected non-zero, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value /= 0)
+		ensure
+			value_non_zero: a_value /= 0
 		end
 
 	assert_non_negative (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' >= 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -356,12 +361,12 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected non-negative, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value >= 0)
+		ensure
+			value_non_negative: a_value >= 0
 		end
 
 	assert_non_positive (a_tag: READABLE_STRING_GENERAL; a_value: INTEGER)
 			-- Assert that `a_value' <= 0
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -370,6 +375,8 @@ feature -- Numeric assertions (INTEGER)
 			msg.append_string_general (": expected non-positive, got ")
 			msg.append_string_general (a_value.out)
 			assert (msg, a_value <= 0)
+		ensure
+			value_non_positive: a_value <= 0
 		end
 
 feature -- Numeric assertions (REAL)
@@ -377,8 +384,7 @@ feature -- Numeric assertions (REAL)
 	assert_reals_equal (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual, a_epsilon: REAL_64)
 			-- Assert that |`a_expected' - `a_actual'| <= `a_epsilon'
 		require
-			a_tag_not_void: a_tag /= Void
-			epsilon_positive: a_epsilon >= 0.0
+			epsilon_non_negative: a_epsilon >= 0.0
 		local
 			msg: STRING_32
 		do
@@ -391,12 +397,12 @@ feature -- Numeric assertions (REAL)
 			msg.append_string_general (", got ")
 			msg.append_string_general (a_actual.out)
 			assert (msg, (a_expected - a_actual).abs <= a_epsilon)
+		ensure
+			within_epsilon: (a_expected - a_actual).abs <= a_epsilon
 		end
 
 	assert_real_greater_than (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: REAL_64)
 			-- Assert that `a_value' > `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -407,12 +413,12 @@ feature -- Numeric assertions (REAL)
 			msg.append_string_general (" > ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value > a_threshold)
+		ensure
+			value_greater: a_value > a_threshold
 		end
 
 	assert_real_less_than (a_tag: READABLE_STRING_GENERAL; a_value, a_threshold: REAL_64)
 			-- Assert that `a_value' < `a_threshold'
-		require
-			a_tag_not_void: a_tag /= Void
 		local
 			msg: STRING_32
 		do
@@ -423,12 +429,13 @@ feature -- Numeric assertions (REAL)
 			msg.append_string_general (" < ")
 			msg.append_string_general (a_threshold.out)
 			assert (msg, a_value < a_threshold)
+		ensure
+			value_less: a_value < a_threshold
 		end
 
 	assert_real_in_range (a_tag: READABLE_STRING_GENERAL; a_value, a_min, a_max: REAL_64)
 			-- Assert that `a_min' <= `a_value' <= `a_max'
 		require
-			a_tag_not_void: a_tag /= Void
 			valid_range: a_min <= a_max
 		local
 			msg: STRING_32
@@ -443,16 +450,14 @@ feature -- Numeric assertions (REAL)
 			msg.append_string_general (a_max.out)
 			msg.append_string_general ("]")
 			assert (msg, a_value >= a_min and a_value <= a_max)
+		ensure
+			value_in_range: a_value >= a_min and a_value <= a_max
 		end
 
 feature -- String assertions
 
 	assert_string_contains (a_tag: READABLE_STRING_GENERAL; a_string, a_substring: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' contains `a_substring'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
-			a_substring_attached: a_substring /= Void
 		local
 			msg: STRING_32
 		do
@@ -462,14 +467,12 @@ feature -- String assertions
 			msg.append_string_general (a_substring)
 			msg.append_character ('%'')
 			assert (msg, a_string.has_substring (a_substring))
+		ensure
+			contains_substring: a_string.has_substring (a_substring)
 		end
 
 	assert_string_not_contains (a_tag: READABLE_STRING_GENERAL; a_string, a_substring: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' does NOT contain `a_substring'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
-			a_substring_attached: a_substring /= Void
 		local
 			msg: STRING_32
 		do
@@ -479,14 +482,12 @@ feature -- String assertions
 			msg.append_string_general (a_substring)
 			msg.append_character ('%'')
 			assert (msg, not a_string.has_substring (a_substring))
+		ensure
+			not_contains_substring: not a_string.has_substring (a_substring)
 		end
 
 	assert_string_starts_with (a_tag: READABLE_STRING_GENERAL; a_string, a_prefix: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' starts with `a_prefix'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
-			a_prefix_attached: a_prefix /= Void
 		local
 			msg: STRING_32
 		do
@@ -496,14 +497,12 @@ feature -- String assertions
 			msg.append_string_general (a_prefix)
 			msg.append_character ('%'')
 			assert (msg, a_string.starts_with (a_prefix))
+		ensure
+			starts_with_prefix: a_string.starts_with (a_prefix)
 		end
 
 	assert_string_ends_with (a_tag: READABLE_STRING_GENERAL; a_string, a_suffix: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' ends with `a_suffix'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
-			a_suffix_attached: a_suffix /= Void
 		local
 			msg: STRING_32
 		do
@@ -513,13 +512,12 @@ feature -- String assertions
 			msg.append_string_general (a_suffix)
 			msg.append_character ('%'')
 			assert (msg, a_string.ends_with (a_suffix))
+		ensure
+			ends_with_suffix: a_string.ends_with (a_suffix)
 		end
 
 	assert_string_empty (a_tag: READABLE_STRING_GENERAL; a_string: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' is empty
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
 		local
 			msg: STRING_32
 		do
@@ -529,13 +527,12 @@ feature -- String assertions
 			msg.append_string_general (a_string)
 			msg.append_character ('%'')
 			assert (msg, a_string.is_empty)
+		ensure
+			string_is_empty: a_string.is_empty
 		end
 
 	assert_string_not_empty (a_tag: READABLE_STRING_GENERAL; a_string: READABLE_STRING_GENERAL)
 			-- Assert that `a_string' is not empty
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
 		local
 			msg: STRING_32
 		do
@@ -543,13 +540,12 @@ feature -- String assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected non-empty string")
 			assert (msg, not a_string.is_empty)
+		ensure
+			string_not_empty: not a_string.is_empty
 		end
 
 	assert_string_length (a_tag: READABLE_STRING_GENERAL; a_expected_length: INTEGER; a_string: READABLE_STRING_GENERAL)
 			-- Assert that `a_string'.count = `a_expected_length'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_string_attached: a_string /= Void
 		local
 			msg: STRING_32
 		do
@@ -560,14 +556,12 @@ feature -- String assertions
 			msg.append_string_general (", got ")
 			msg.append_string_general (a_string.count.out)
 			assert (msg, a_string.count = a_expected_length)
+		ensure
+			length_matches: a_string.count = a_expected_length
 		end
 
 	assert_strings_equal_case_insensitive (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: READABLE_STRING_GENERAL)
 			-- Assert strings are equal ignoring case
-		require
-			a_tag_not_void: a_tag /= Void
-			a_expected_attached: a_expected /= Void
-			a_actual_attached: a_actual /= Void
 		local
 			msg: STRING_32
 		do
@@ -579,15 +573,13 @@ feature -- String assertions
 			msg.append_string_general (a_actual)
 			msg.append_character ('%'')
 			assert (msg, a_expected.is_case_insensitive_equal (a_actual))
+		ensure
+			case_insensitive_equal: a_expected.is_case_insensitive_equal (a_actual)
 		end
 
 	assert_strings_equal_diff (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: STRING_32)
 			-- Assert strings are equal with detailed character-by-character diff
 			-- Shows special characters, position of first difference, and metrics
-		require
-			a_tag_not_void: a_tag /= Void
-			a_expected_attached: a_expected /= Void
-			a_actual_attached: a_actual /= Void
 		local
 			msg: STRING_32
 		do
@@ -595,15 +587,14 @@ feature -- String assertions
 				msg := build_string_diff (a_tag, a_expected, a_actual)
 				assert (msg, False)
 			end
+		ensure
+			strings_equal: a_expected.same_string (a_actual)
 		end
 
 feature -- Collection assertions
 
 	assert_array_has_item (a_tag: READABLE_STRING_GENERAL; a_array: ARRAY [detachable ANY]; a_item: detachable ANY)
 			-- Assert that `a_array' contains `a_item' (using = for comparison)
-		require
-			a_tag_not_void: a_tag /= Void
-			a_array_attached: a_array /= Void
 		local
 			msg: STRING_32
 			found: BOOLEAN
@@ -623,13 +614,12 @@ feature -- Collection assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": array should contain item")
 			assert (msg, found)
+		ensure
+			array_has_item: across a_array.lower |..| a_array.upper as idx some a_array.item (idx) = a_item end
 		end
 
 	assert_array_not_has_item (a_tag: READABLE_STRING_GENERAL; a_array: ARRAY [detachable ANY]; a_item: detachable ANY)
 			-- Assert that `a_array' does NOT contain `a_item'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_array_attached: a_array /= Void
 		local
 			msg: STRING_32
 			found: BOOLEAN
@@ -649,13 +639,12 @@ feature -- Collection assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": array should NOT contain item")
 			assert (msg, not found)
+		ensure
+			array_not_has_item: across a_array.lower |..| a_array.upper as idx all a_array.item (idx) /= a_item end
 		end
 
-	assert_iterable_is_empty (a_tag: READABLE_STRING_GENERAL; a_collection: ITERABLE [ANY])
+	assert_iterable_is_empty (a_tag: READABLE_STRING_GENERAL; a_collection: ITERABLE [detachable separate ANY])
 			-- Assert that `a_collection' is empty
-		require
-			a_tag_not_void: a_tag /= Void
-			a_collection_attached: a_collection /= Void
 		local
 			msg: STRING_32
 			is_empty: BOOLEAN
@@ -668,13 +657,12 @@ feature -- Collection assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected empty collection")
 			assert (msg, is_empty)
+		ensure
+			collection_empty: across a_collection as ic all False end
 		end
 
-	assert_iterable_not_empty (a_tag: READABLE_STRING_GENERAL; a_collection: ITERABLE [ANY])
+	assert_iterable_not_empty (a_tag: READABLE_STRING_GENERAL; a_collection: ITERABLE [detachable separate ANY])
 			-- Assert that `a_collection' is not empty
-		require
-			a_tag_not_void: a_tag /= Void
-			a_collection_attached: a_collection /= Void
 		local
 			msg: STRING_32
 			has_item: BOOLEAN
@@ -687,13 +675,12 @@ feature -- Collection assertions
 			msg.append_string_general (a_tag)
 			msg.append_string_general (": expected non-empty collection")
 			assert (msg, has_item)
+		ensure
+			collection_not_empty: across a_collection as ic some True end
 		end
 
-	assert_count_equals (a_tag: READABLE_STRING_GENERAL; a_expected: INTEGER; a_collection: FINITE [ANY])
+	assert_count_equals (a_tag: READABLE_STRING_GENERAL; a_expected: INTEGER; a_collection: FINITE [detachable separate ANY])
 			-- Assert that `a_collection'.count = `a_expected'
-		require
-			a_tag_not_void: a_tag /= Void
-			a_collection_attached: a_collection /= Void
 		local
 			msg: STRING_32
 		do
@@ -704,6 +691,8 @@ feature -- Collection assertions
 			msg.append_string_general (", got ")
 			msg.append_string_general (a_collection.count.out)
 			assert (msg, a_collection.count = a_expected)
+		ensure
+			count_matches: a_collection.count = a_expected
 		end
 
 feature {NONE} -- String diff implementation
