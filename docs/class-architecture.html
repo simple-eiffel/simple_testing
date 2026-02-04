@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Architecture & Usage Guide - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_testing logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">Class Architecture & Detailed Usage Guide</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="#classes">CLASS GUIDE</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="classes">
+            <h2>Class Architecture: Complete Guide</h2>
+
+            <p>
+                The simple_testing framework consists of 7 core classes organized in a hierarchy.
+                This guide explains each class, its purpose, how to use it, and how they work together.
+            </p>
+
+            <!-- ============================================================ -->
+            <!-- TEST_SET_BASE -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>1️⃣ TEST_SET_BASE (Deferred)</h3>
+                    <span class="class-type">Base Class</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        The base class that all test classes inherit from. Provides 40+ assertion methods
+                        for verifying expected behavior in tests.
+                    </p>
+
+                    <h4>📍 Location in Hierarchy</h4>
+                    <pre><code>TEST_SET_BASE (inherits from EQA_TEST_SET)
+    └─ Your test classes inherit from TEST_SET_BASE</code></pre>
+
+                    <h4>🔧 How to Use</h4>
+                    <p><strong>Step 1:</strong> Create your test class inheriting from TEST_SET_BASE:</p>
+                    <pre><code>class MY_TESTS
+inherit TEST_SET_BASE
+feature
+    test_something
+        do
+            -- Your test logic here
+        end
+end</code></pre>
+
+                    <p><strong>Step 2:</strong> Use assertion methods in your tests:</p>
+                    <pre><code>test_example
+    do
+        -- Boolean assertions
+        assert ("condition_true", True)
+        assert_true ("explicit_true", some_condition)
+
+        -- Object assertions
+        assert_attached ("obj_not_void", my_object)
+        assert_equal ("values_equal", expected, actual)
+
+        -- Numeric assertions
+        assert_positive ("count_positive", my_list.count)
+        assert_in_range ("value_in_range", value, 1, 100)
+
+        -- String assertions
+        assert_string_contains ("has_error", output, "ERROR")
+        assert_string_starts_with ("http", url, "http://")
+
+        -- Collection assertions
+        assert_count_equals ("list_size", 5, my_list)
+        assert_iterable_not_empty ("has_items", collection)
+    end</code></pre>
+
+                    <h4>📚 40+ Assertion Methods Available</h4>
+                    <div class="assertion-table">
+                        <table>
+                            <tr>
+                                <th>Category</th>
+                                <th>Methods</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Boolean</strong></td>
+                                <td>assert, assert_true, assert_false</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Object</strong></td>
+                                <td>assert_attached, assert_void, assert_same_reference, assert_not_same_reference</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Equality</strong></td>
+                                <td>assert_equal, assert_not_equal</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Integer</strong></td>
+                                <td>assert_positive, assert_negative, assert_zero, assert_in_range, assert_greater_than, assert_less_than</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Real</strong></td>
+                                <td>assert_reals_equal (with epsilon), assert_real_in_range</td>
+                            </tr>
+                            <tr>
+                                <td><strong>String</strong></td>
+                                <td>assert_string_contains, assert_string_starts_with, assert_string_ends_with, assert_string_empty, assert_string_length</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Collection</strong></td>
+                                <td>assert_count_equals, assert_iterable_empty, assert_iterable_not_empty, assert_array_has_item</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Advanced</strong></td>
+                                <td>NATURAL_64 assertions, epsilon comparisons for floating-point</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h4>⚠️ Common Mistakes</h4>
+                    <ul>
+                        <li>❌ NOT inheriting from TEST_SET_BASE (inherit from it!)</li>
+                        <li>❌ Forgetting to prefix test methods with "test_" (required for test discovery)</li>
+                        <li>❌ Testing multiple things in one test (one assertion focus per test)</li>
+                        <li>✅ Use descriptive assertion tags: assert_equal ("user_name_matches", "john", user.name)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TEST_SET_BASE_EXTENDED -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>2️⃣ TEST_SET_BASE_EXTENDED (Deferred)</h3>
+                    <span class="class-type">Extension Mixin</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Provides two extension points:
+                        <strong>Feature-level fixture hooks</strong> (on_prepare_feature, on_clean_feature) for per-test setup/cleanup,
+                        and <strong>nested fixture support</strong> (with_fixture) for scoped callback execution.
+                    </p>
+
+                    <h4>📍 Location in Hierarchy</h4>
+                    <pre><code>TEST_SET_BASE_EXTENDED
+    ├─ Deferred: on_prepare_feature
+    ├─ Deferred: on_clean_feature
+    └─ Deferred: with_fixture (callback: PROCEDURE)</code></pre>
+
+                    <h4>🔧 How to Use - Feature-Level Hooks</h4>
+                    <p>
+                        <strong>Scenario:</strong> You need setup before each test and cleanup after each test.
+                        Database transaction example:
+                    </p>
+                    <pre><code>class DATABASE_TESTS
+inherit TEST_SET_BASE
+    -- Optionally override on_prepare_feature / on_clean_feature if needed
+feature
+    on_prepare_feature
+        -- Called before EACH test method
+        do
+            database.begin_transaction
+        end
+
+    on_clean_feature
+        -- Called after EACH test method (even if exception thrown)
+        do
+            database.rollback  -- Undo changes from test
+        end
+
+    test_user_creation
+        -- Runs with transaction active
+        -- Changes will be rolled back after test
+        do
+            database.insert_user ("alice")
+            assert ("user_created", database.user_exists ("alice"))
+            -- on_clean_feature called here - transaction rolled back
+        end
+
+    test_user_deletion
+        -- Also runs with fresh transaction
+        do
+            database.insert_user ("bob")
+            database.delete_user ("bob")
+            assert ("user_deleted", not database.user_exists ("bob"))
+            -- on_clean_feature called here - transaction rolled back
+        end
+end</code></pre>
+
+                    <h4>🔧 How to Use - Nested Fixtures (with_fixture)</h4>
+                    <p>
+                        <strong>Scenario:</strong> You need scoped fixture acquisition/release with LIFO (Last In, First Out) ordering.
+                        Perfect for nested resource management.
+                    </p>
+                    <pre><code>test_with_nested_fixtures
+    local
+        l_test: FIXTURE_HOLDER
+    do
+        create l_test
+
+        -- Nested fixture pattern with LIFO cleanup
+        l_test.with_fixture (agent do
+            -- Fixture 1 acquired
+            database.begin_transaction
+
+            l_test.with_fixture (agent do
+                -- Fixture 2 acquired (nested inside Fixture 1)
+                database.begin_savepoint ("sp1")
+
+                -- Test logic here
+                database.insert_user ("charlie")
+                assert ("user_created", database.user_exists ("charlie"))
+
+                -- Fixture 2 released (rollback to savepoint)
+                database.rollback_to_savepoint ("sp1")
+            end)
+
+            -- Fixture 1 still active (transaction still open)
+            -- Test verification here
+
+            -- Fixture 1 released (transaction rolled back)
+        end)
+
+        -- Cleanup guaranteed even if exception thrown
+        assert ("fixtures_cleaned", True)
+    end</code></pre>
+
+                    <h4>🔄 LIFO Cleanup Order</h4>
+                    <p>
+                        "Last In, First Out" means fixtures are released in reverse order of acquisition:
+                    </p>
+                    <pre><code>with_fixture (acquire fixture 1)
+    with_fixture (acquire fixture 2)
+        with_fixture (acquire fixture 3)
+            execute test
+        release fixture 3  ← First released (innermost)
+    release fixture 2     ← Second released
+release fixture 1        ← Last released (outermost)</code></pre>
+
+                    <h4>⚠️ Exception Safety Guarantee</h4>
+                    <p>
+                        Even if your test logic throws an exception, cleanup ALWAYS runs:
+                    </p>
+                    <pre><code>test_exception_safe_cleanup
+    local
+        l_test: FIXTURE_HOLDER
+    do
+        create l_test
+        l_test.with_fixture (agent do
+            database.begin_transaction
+            -- Even if this throws...
+            if risky_operation_fails then
+                throw_exception ("Operation failed")
+            end
+            -- ...cleanup STILL runs (transaction rolled back)
+        end)
+        -- Guaranteed: no transaction leaks even on error
+    end</code></pre>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TEST_FIXTURE -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>3️⃣ TEST_FIXTURE (Deferred)</h3>
+                    <span class="class-type">Feature-Level Fixture Base</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Deferred base class for feature-level fixtures. Defines the lifecycle:
+                        <strong>on_create</strong> (setup) and <strong>on_destroy</strong> (cleanup).
+                        You create subclasses to add specific fixture behavior.
+                    </p>
+
+                    <h4>📍 Location in Hierarchy</h4>
+                    <pre><code>TEST_FIXTURE (deferred)
+    ├─ on_create: setup called before test
+    ├─ on_destroy: cleanup called after test
+    ├─ is_valid: status query
+    └─ lifecycle_state: MML model query (0=invalid, 1=valid)</code></pre>
+
+                    <h4>🔧 How to Use - Create Your Own Fixture</h4>
+                    <p>
+                        <strong>Scenario:</strong> You need fresh database state for each test.
+                        Create a fixture class:
+                    </p>
+                    <pre><code>-- Your custom fixture class
+class DATABASE_FIXTURE
+inherit TEST_FIXTURE
+    redefine
+        on_create, on_destroy, is_valid
+    end
+
+feature
+    valid_flag: BOOLEAN
+
+    on_create
+        -- Called once at test start (creates fresh state)
+        do
+            database.begin_transaction
+            valid_flag := True
+        ensure
+            fixture_valid: is_valid
+        end
+
+    on_destroy
+        -- Called once at test end (cleans up state)
+        require
+            fixture_valid: is_valid
+        do
+            database.rollback  -- Undo all test changes
+            valid_flag := False
+        ensure
+            fixture_invalid: not is_valid
+        end
+
+    is_valid: BOOLEAN
+        -- Returns True if fixture is in valid state
+        do Result := valid_flag end
+end
+
+-- Now use it in your tests
+class DATABASE_TESTS
+inherit TEST_SET_BASE
+feature
+    test_user_creation
+        local
+            l_fixture: DATABASE_FIXTURE
+        do
+            -- Create fixture (fresh state)
+            create l_fixture
+            l_fixture.on_create
+
+            -- Test logic with clean database
+            database.insert_user ("alice")
+            assert ("user_created", database.user_exists ("alice"))
+
+            -- Cleanup (rollback all changes)
+            l_fixture.on_destroy
+            assert ("cleaned_up", not database.user_exists ("alice"))
+        end
+end</code></pre>
+
+                    <h4>🔄 Fixture Lifecycle State Machine</h4>
+                    <pre><code>┌──────────────┐
+│    Invalid   │  (is_valid = False)
+│ (no fixture) │
+└──────────────┘
+       ↓
+   on_create() called
+       ↓
+┌──────────────┐
+│    Valid     │  (is_valid = True)
+│  (ready to   │
+│    test)     │
+└──────────────┘
+       ↓
+   on_destroy() called
+       ↓
+┌──────────────┐
+│    Invalid   │  (is_valid = False)
+│  (cleaned    │  (cleanup guaranteed)
+│     up)      │
+└──────────────┘</code></pre>
+
+                    <h4>📋 Contracts: What's Guaranteed</h4>
+                    <div class="contracts-table">
+                        <table>
+                            <tr>
+                                <th>Method</th>
+                                <th>Precondition</th>
+                                <th>Postcondition</th>
+                            </tr>
+                            <tr>
+                                <td><strong>on_create</strong></td>
+                                <td>None (can be called anytime)</td>
+                                <td>is_valid = True (fixture ready)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>on_destroy</strong></td>
+                                <td>is_valid = True (fixture must be valid)</td>
+                                <td>is_valid = False (cleanup complete)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TEST_FIXTURE_MOCK -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>4️⃣ TEST_FIXTURE_MOCK (Concrete)</h3>
+                    <span class="class-type">Mock Implementation</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Concrete implementation of TEST_FIXTURE for testing the fixture lifecycle itself.
+                        Shows how to properly implement a fixture. Used in test suite and as reference.
+                    </p>
+
+                    <h4>📍 When to Use</h4>
+                    <ul>
+                        <li>✅ Testing fixture behavior (lifecycle, state transitions)</li>
+                        <li>✅ Reference implementation to understand how to create your own fixtures</li>
+                        <li>✅ Unit testing the framework itself</li>
+                        <li>❌ NOT for testing your actual application (create your own fixtures instead)</li>
+                    </ul>
+
+                    <h4>🔧 Example: Testing with TEST_FIXTURE_MOCK</h4>
+                    <pre><code>test_fixture_lifecycle
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        -- Initially invalid
+        create l_fixture
+        assert ("initially_invalid", not l_fixture.is_valid)
+
+        -- Create transitions to valid
+        l_fixture.on_create
+        assert ("after_create_valid", l_fixture.is_valid)
+
+        -- Destroy transitions to invalid
+        l_fixture.on_destroy
+        assert ("after_destroy_invalid", not l_fixture.is_valid)
+    end
+
+test_fixture_model_query
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        create l_fixture
+
+        -- Model query shows state as integer (0 or 1)
+        assert_equal ("invalid_state_0", 0, l_fixture.lifecycle_state)
+
+        l_fixture.on_create
+        assert_equal ("valid_state_1", 1, l_fixture.lifecycle_state)
+
+        l_fixture.on_destroy
+        assert_equal ("invalid_state_0_again", 0, l_fixture.lifecycle_state)
+    end</code></pre>
+
+                    <h4>📚 Learn From TEST_FIXTURE_MOCK</h4>
+                    <p>
+                        When creating your own fixture, follow the TEST_FIXTURE_MOCK pattern:
+                    </p>
+                    <pre><code>-- This is what TEST_FIXTURE_MOCK does - follow this pattern!
+class MY_CUSTOM_FIXTURE
+inherit TEST_FIXTURE
+    redefine on_create, on_destroy, is_valid end
+
+feature
+    valid_flag: BOOLEAN  -- Track state
+
+    on_create
+        do
+            -- Your setup logic
+            valid_flag := True
+        ensure
+            fixture_valid: is_valid
+        end
+
+    on_destroy
+        require
+            fixture_valid: is_valid
+        do
+            -- Your cleanup logic
+            valid_flag := False
+        ensure
+            fixture_invalid: not is_valid
+        end
+
+    is_valid: BOOLEAN
+        do Result := valid_flag end
+end</code></pre>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- FIXTURE_HOLDER -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>5️⃣ FIXTURE_HOLDER (Concrete)</h3>
+                    <span class="class-type">Nested Fixture Support</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Provides the <strong>with_fixture</strong> method for executing callbacks in scoped
+                        fixture contexts. Enables nested fixture patterns with automatic LIFO cleanup.
+                    </p>
+
+                    <h4>📍 When to Use</h4>
+                    <ul>
+                        <li>✅ Need nested resource management (transactions within transactions)</li>
+                        <li>✅ Want LIFO cleanup guarantees</li>
+                        <li>✅ Testing scenarios that need exception-safe cleanup</li>
+                    </ul>
+
+                    <h4>🔧 How to Use FIXTURE_HOLDER</h4>
+                    <pre><code>test_with_fixture_scoped_cleanup
+    local
+        l_holder: FIXTURE_HOLDER
+    do
+        create l_holder
+
+        -- Execute code in fixture scope
+        l_holder.with_fixture (agent do
+            -- Setup happens automatically on entry
+            database.begin_transaction
+
+            -- Test code executes here
+            database.insert_user ("dave")
+            assert ("user_exists", database.user_exists ("dave"))
+
+            -- Cleanup happens automatically on exit (even if exception)
+            -- Transaction rolled back
+        end)
+
+        -- After exit: fixture cleaned up, transaction rolled back
+    end
+
+test_multiple_nested_fixtures
+    local
+        l_holder: FIXTURE_HOLDER
+    do
+        create l_holder
+
+        -- Level 1: Outer fixture
+        l_holder.with_fixture (agent do
+            database.begin_transaction
+
+            -- Level 2: Middle fixture (nested inside Level 1)
+            l_holder.with_fixture (agent do
+                database.begin_savepoint ("sp1")
+
+                -- Level 3: Inner fixture (nested inside Level 2)
+                l_holder.with_fixture (agent do
+                    -- Deep nesting - innermost scope
+                    database.insert_user ("eve")
+                    assert ("user_created", database.user_exists ("eve"))
+                end)
+                -- Level 3 cleanup: no-op
+
+                -- Level 2 still active - verify state
+                assert ("user_still_exists_at_level_2", database.user_exists ("eve"))
+            end)
+            -- Level 2 cleanup: rollback to savepoint
+
+            -- Level 1 still active
+            assert ("user_deleted_by_savepoint", not database.user_exists ("eve"))
+        end)
+        -- Level 1 cleanup: rollback transaction
+    end</code></pre>
+
+                    <h4>⚠️ Exception Safety in with_fixture</h4>
+                    <pre><code>test_exception_safe_with_fixture
+    local
+        l_holder: FIXTURE_HOLDER
+    do
+        create l_holder
+
+        l_holder.with_fixture (agent do
+            database.begin_transaction
+
+            -- Even if code throws...
+            if something_goes_wrong then
+                throw_exception ("Error occurred")
+            end
+
+            -- ...cleanup STILL runs (guaranteed by postcondition)
+        end)
+
+        -- Guaranteed: transaction rolled back even on exception
+    end</code></pre>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TEST_SYSTEM -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>6️⃣ TEST_SYSTEM (Deferred)</h3>
+                    <span class="class-type">System-Level Fixture Base</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Deferred base class for system-level fixtures that run
+                        <strong>once per entire test run</strong> (not per test).
+                        Perfect for expensive setup (database init, server startup).
+                    </p>
+
+                    <h4>📍 Location in Hierarchy</h4>
+                    <pre><code>TEST_SYSTEM (deferred)
+    ├─ on_prepare_test_system: called once at run start
+    ├─ on_clean_test_system: called once at run end
+    ├─ is_initialized: status query
+    └─ initialization_state: MML model query (0=uninitialized, 1=initialized)</code></pre>
+
+                    <h4>🔧 How to Use - Create System Fixture</h4>
+                    <p>
+                        <strong>Scenario:</strong> Database needs to be created once, used by all tests, then destroyed.
+                    </p>
+                    <pre><code>-- Create once at test run start, destroyed once at end
+class DATABASE_TEST_SYSTEM
+inherit TEST_SYSTEM
+    redefine
+        on_prepare_test_system, on_clean_test_system, is_initialized
+    end
+
+feature
+    initialized_flag: BOOLEAN
+
+    on_prepare_test_system
+        -- Called ONCE when test run STARTS
+        require
+            system_not_initialized: not is_initialized
+        do
+            -- Expensive one-time setup
+            database.create_connection
+            database.create_schema
+            database.seed_data  -- Load test data
+            initialized_flag := True
+        ensure
+            system_initialized: is_initialized
+        end
+
+    on_clean_test_system
+        -- Called ONCE when test run ENDS
+        require
+            system_initialized: is_initialized
+        do
+            -- One-time cleanup
+            database.drop_schema
+            database.close_connection
+            initialized_flag := False
+        ensure
+            system_cleaned: not is_initialized
+        end
+
+    is_initialized: BOOLEAN
+        -- Query: is system ready?
+        do Result := initialized_flag end
+end</code></pre>
+
+                    <h4>🎯 System vs Feature Lifecycle</h4>
+                    <pre><code>TEST RUN START
+    ↓
+on_prepare_test_system (CALLED ONCE)
+    Database created, schema created, test data loaded
+    ↓
+    [Now all 100 tests run, sharing same database]
+    ↓
+    test_1: uses database
+    test_2: uses database (same database as test_1)
+    test_3: uses database (same database)
+    ...
+    test_100: uses database
+    ↓
+on_clean_test_system (CALLED ONCE)
+    Database destroyed, connection closed
+    ↓
+TEST RUN END</code></pre>
+
+                    <h4>📋 Efficiency Advantage</h4>
+                    <table>
+                        <tr>
+                            <th>Approach</th>
+                            <th>Cost</th>
+                            <th>When to Use</th>
+                        </tr>
+                        <tr>
+                            <td><strong>System Fixture</strong><br>(once per run)</td>
+                            <td>1x expensive setup</td>
+                            <td>Database init (seconds per test run)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feature Fixture</strong><br>(once per test)</td>
+                            <td>100x setup cost</td>
+                            <td>Transaction isolation (milliseconds per test)</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- TEST_SYSTEM_MOCK -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>7️⃣ TEST_SYSTEM_MOCK (Concrete)</h3>
+                    <span class="class-type">Mock Implementation</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>🎯 Purpose</h4>
+                    <p>
+                        Concrete implementation of TEST_SYSTEM for testing system-level fixture behavior.
+                        Reference implementation. Used in test suite and as pattern to follow.
+                    </p>
+
+                    <h4>📍 When to Use</h4>
+                    <ul>
+                        <li>✅ Testing system fixture lifecycle</li>
+                        <li>✅ Reference to understand system fixture pattern</li>
+                        <li>✅ Unit testing the framework itself</li>
+                        <li>❌ NOT for your actual test system (create your own)</li>
+                    </ul>
+
+                    <h4>🔧 Example: Testing with TEST_SYSTEM_MOCK</h4>
+                    <pre><code>test_system_initialization
+    local
+        l_system: TEST_SYSTEM_MOCK
+    do
+        -- Initially not initialized
+        create l_system
+        assert ("initially_uninitialized", not l_system.is_initialized)
+
+        -- Prepare transitions to initialized
+        l_system.on_prepare_test_system
+        assert ("after_prepare_initialized", l_system.is_initialized)
+
+        -- Clean transitions to uninitialized
+        l_system.on_clean_test_system
+        assert ("after_clean_uninitialized", not l_system.is_initialized)
+    end
+
+test_system_state_model
+    local
+        l_system: TEST_SYSTEM_MOCK
+    do
+        create l_system
+
+        -- Model query (MML)
+        assert_equal ("uninitialized_state_0", 0, l_system.initialization_state)
+
+        l_system.on_prepare_test_system
+        assert_equal ("initialized_state_1", 1, l_system.initialization_state)
+
+        l_system.on_clean_test_system
+        assert_equal ("cleaned_state_0", 0, l_system.initialization_state)
+    end</code></pre>
+
+                    <h4>📚 Learn From TEST_SYSTEM_MOCK</h4>
+                    <pre><code>-- Follow this pattern for your own system fixtures
+class MY_APP_TEST_SYSTEM
+inherit TEST_SYSTEM
+    redefine
+        on_prepare_test_system, on_clean_test_system, is_initialized
+    end
+
+feature
+    initialized_flag: BOOLEAN  -- Track state
+
+    on_prepare_test_system
+        do
+            -- Your expensive one-time setup
+            initialized_flag := True
+        ensure
+            system_initialized: is_initialized
+        end
+
+    on_clean_test_system
+        require
+            system_initialized: is_initialized
+        do
+            -- Your one-time cleanup
+            initialized_flag := False
+        ensure
+            system_cleaned: not is_initialized
+        end
+
+    is_initialized: BOOLEAN
+        do Result := initialized_flag end
+end</code></pre>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- INTEGRATION GUIDE -->
+            <!-- ============================================================ -->
+            <section class="class-section">
+                <div class="class-header">
+                    <h3>🔗 How They Work Together</h3>
+                    <span class="class-type">Full Integration Example</span>
+                </div>
+
+                <div class="class-content">
+                    <h4>Complete Test Suite Architecture</h4>
+                    <pre><code>┌─────────────────────────────────────────────────────────────┐
+│  TEST RUN STARTS                                            │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  TEST_SYSTEM: on_prepare_test_system (ONCE per run)         │
+│  - Create database                                          │
+│  - Create schema                                            │
+│  - Load seed data                                           │
+│  is_initialized = True                                      │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  FOR EACH TEST:                                             │
+│                                                             │
+│  1. TEST_SET_BASE_EXTENDED: on_prepare_feature             │
+│     - Optional per-test setup                              │
+│                                                             │
+│  2. Test Execution (YOUR TEST CODE)                        │
+│     class MY_TESTS inherit TEST_SET_BASE                   │
+│         test_something do                                  │
+│             assert_equal ("...", expected, actual)         │
+│             -- Or use TEST_FIXTURE for setup/cleanup       │
+│             -- Or use with_fixture for nested fixtures     │
+│         end                                                 │
+│                                                             │
+│  3. TEST_SET_BASE_EXTENDED: on_clean_feature              │
+│     - Optional per-test cleanup                            │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  TEST_SYSTEM: on_clean_test_system (ONCE per run)           │
+│  - Drop schema                                              │
+│  - Close connection                                         │
+│  is_initialized = False                                     │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  TEST RUN ENDS                                              │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+                    <h4>Real-World Example: Complete Test Suite</h4>
+                    <pre><code>-- 1. SYSTEM FIXTURE (runs once per test run)
+class APP_TEST_SYSTEM
+inherit TEST_SYSTEM
+feature
+    initialized_flag: BOOLEAN
+
+    on_prepare_test_system
+        do
+            create database.make
+            database.connect ("test_db")
+            database.create_schema
+            initialized_flag := True
+        ensure
+            system_initialized: is_initialized
+        end
+
+    on_clean_test_system
+        do
+            database.drop_schema
+            database.close
+            initialized_flag := False
+        ensure
+            system_cleaned: not is_initialized
+        end
+
+    is_initialized: BOOLEAN
+        do Result := initialized_flag end
+end
+
+-- 2. FEATURE FIXTURE (runs once per test)
+class TRANSACTION_FIXTURE
+inherit TEST_FIXTURE
+feature
+    valid_flag: BOOLEAN
+
+    on_create
+        do
+            database.begin_transaction
+            valid_flag := True
+        ensure
+            fixture_valid: is_valid
+        end
+
+    on_destroy
+        do
+            database.rollback
+            valid_flag := False
+        ensure
+            fixture_invalid: not is_valid
+        end
+
+    is_valid: BOOLEAN
+        do Result := valid_flag end
+end
+
+-- 3. TEST CLASS (uses fixtures and assertions)
+class USER_TESTS
+inherit TEST_SET_BASE
+feature
+    test_user_creation
+        local
+            l_fixture: TRANSACTION_FIXTURE
+        do
+            -- Feature-level fixture: fresh transaction
+            create l_fixture
+            l_fixture.on_create
+
+            -- Test assertions (40+ available)
+            database.create_user ("alice", "alice@example.com")
+            assert_true ("user_created", database.user_exists ("alice"))
+            assert_equal ("email_correct", "alice@example.com", database.get_user_email ("alice"))
+
+            -- Cleanup
+            l_fixture.on_destroy  -- Rolls back transaction
+        end
+
+    test_user_deletion
+        local
+            l_fixture: TRANSACTION_FIXTURE
+            l_holder: FIXTURE_HOLDER
+        do
+            -- Feature-level fixture: fresh transaction
+            create l_fixture
+            l_fixture.on_create
+
+            database.create_user ("bob", "bob@example.com")
+
+            -- Nested fixture: savepoint within transaction
+            create l_holder
+            l_holder.with_fixture (agent do
+                database.begin_savepoint ("sp1")
+                database.delete_user ("bob")
+                assert_false ("user_deleted_in_scope", database.user_exists ("bob"))
+                database.rollback_to_savepoint ("sp1")
+            end)
+
+            -- Back to transaction level
+            assert_true ("user_restored_from_savepoint", database.user_exists ("bob"))
+
+            l_fixture.on_destroy  -- Rolls back entire transaction
+        end
+end</code></pre>
+
+                    <h4>🎯 Design Decisions</h4>
+                    <ul>
+                        <li>
+                            <strong>USE TEST_SYSTEM FOR:</strong> One-time expensive setup (seconds per run)
+                            <ul>
+                                <li>Database initialization</li>
+                                <li>Server startup</li>
+                                <li>Loading large seed datasets</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>USE TEST_FIXTURE FOR:</strong> Per-test isolation (milliseconds per test)
+                            <ul>
+                                <li>Transaction per test</li>
+                                <li>Fresh resource allocation</li>
+                                <li>Test-specific setup/cleanup</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong>USE WITH_FIXTURE FOR:</strong> Nested scoped cleanup (LIFO)
+                            <ul>
+                                <li>Savepoint within transaction</li>
+                                <li>Resource nesting</li>
+                                <li>Callback-based fixture patterns</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>

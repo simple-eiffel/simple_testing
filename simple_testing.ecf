@@ -23,6 +23,6 @@
 	</target>
 	<target name="simple_testing_tests" extends="simple_testing">
 		<root class="TEST_APP" feature="make"/>
-		<cluster name="test_classes" location=".\testing\" recursive="true"/>
+		<cluster name="test_classes" location=".\test\" recursive="true"/>
 	</target>
 </system>
