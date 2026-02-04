@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick API Reference - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">Quick API Reference</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="#quick">QUICK API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="quick">
+            <h2>Quick Examples</h2>
+
+            <h3>Basic Test Class</h3>
+            <pre><code>class MY_TEST_SET
+inherit TEST_SET_BASE
+feature
+    test_basic_assertion
+        do
+            assert ("condition_true", True)
+            assert ("condition_false", not False)
+        end
+end</code></pre>
+
+            <h3>System-Level Fixture (Singleton)</h3>
+            <pre><code>class MY_APP_TEST_SYSTEM
+inherit TEST_SYSTEM
+feature
+    on_prepare_test_system
+        do
+            -- Initialize database, server, pools
+            -- Called ONCE at test run start
+        end
+
+    on_clean_test_system
+        do
+            -- Cleanup resources
+            -- Called ONCE at test run end
+        end
+end</code></pre>
+
+            <h3>Feature-Level Fixture (Per-Test)</h3>
+            <pre><code>test_with_fixture
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        create l_fixture
+        l_fixture.on_create
+        -- Test logic here
+        assert ("is_valid", l_fixture.is_valid)
+        l_fixture.on_destroy
+    end</code></pre>
+
+            <h3>Nested Fixtures with Scoped Cleanup</h3>
+            <pre><code>test_nested_fixture
+    local
+        l_test: FIXTURE_HOLDER
+    do
+        create l_test
+        l_test.with_fixture (agent do
+            -- Fixture acquired here
+            -- Cleanup automatic on exit
+            assert ("in_scope", True)
+        end)
+    end</code></pre>
+
+            <h3>Common Assertions</h3>
+            <pre><code>-- Boolean assertions
+assert ("is_true", some_condition)
+assert_true ("explicit_true", condition)
+assert_false ("explicit_false", not condition)
+
+-- Object assertions
+assert_attached ("not_void", result)
+assert_void ("is_void", optional_value)
+assert_same_reference ("same_obj", obj1, obj2)
+
+-- Equality assertions
+assert_equal ("equals", expected, actual)
+assert_not_equal ("not_equals", x, y)
+
+-- Numeric assertions
+assert_positive ("positive", count)
+assert_negative ("negative", delta)
+assert_in_range ("in_range", value, 1, 100)
+
+-- String assertions
+assert_string_contains ("has_text", output, "ERROR")
+assert_string_starts_with ("header", response, "HTTP")
+assert_string_empty ("empty_str", empty_var)
+
+-- Collection assertions
+assert_count_equals ("size", 5, my_list)
+assert_iterable_not_empty ("has_items", collection)</code></pre>
+        </section>
+
+        <section id="common-patterns">
+            <h2>Common Operations</h2>
+
+            <h3>State Transition Verification</h3>
+            <pre><code>test_state_transition
+    local
+        l_system: TEST_SYSTEM_MOCK
+        old_state, new_state: INTEGER
+    do
+        create l_system
+        old_state := l_system.initialization_state
+        l_system.on_prepare_test_system
+        new_state := l_system.initialization_state
+        assert_equal ("transition_0_to_1", new_state, 1)
+    end</code></pre>
+
+            <h3>Model Query Verification (MML)</h3>
+            <pre><code>test_model_query
+    local
+        l_system: TEST_SYSTEM_MOCK
+    do
+        create l_system
+        assert_equal ("uninitialized_state", 0, l_system.initialization_state)
+        l_system.on_prepare_test_system
+        assert_equal ("initialized_state", 1, l_system.initialization_state)
+    end</code></pre>
+
+            <h3>Exception-Safe Cleanup</h3>
+            <pre><code>test_exception_safety
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        create l_fixture
+        l_fixture.on_create
+        -- Even if test logic throws, on_destroy guarantees cleanup
+        -- Eiffel's rescue clause ensures postcondition holds
+        l_fixture.on_destroy
+        assert ("cleaned_up", not l_fixture.is_valid)
+    end</code></pre>
+        </section>
+
+        <section id="next-steps">
+            <h2>Next Steps</h2>
+            <ul>
+                <li><a href="user-guide.html">User Guide</a> - Comprehensive tutorial and examples</li>
+                <li><a href="api-reference.html">API Reference</a> - Complete API documentation</li>
+                <li><a href="cookbook.html">Cookbook</a> - Real-world recipes and patterns</li>
+                <li><a href="architecture.html">Architecture</a> - Design and implementation details</li>
+            </ul>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>

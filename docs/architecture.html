@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">Architecture & Design</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="#arch">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="arch">
+            <h2>Architecture & Design</h2>
+
+            <section>
+                <h3>Design Principles</h3>
+
+                <h4>1. Design by Contract (DBC)</h4>
+                <p>
+                    All classes use explicit contracts:
+                </p>
+                <ul>
+                    <li><strong>Preconditions (require):</strong> Caller's responsibilities</li>
+                    <li><strong>Postconditions (ensure):</strong> Feature's guarantees</li>
+                    <li><strong>Invariants:</strong> Class consistency checks</li>
+                </ul>
+                <p>
+                    Tests verify that postconditions hold and invariants are maintained.
+                </p>
+
+                <h4>2. Three-Tier Fixture Architecture</h4>
+                <p>
+                    Fixtures run at different scopes:
+                </p>
+                <ul>
+                    <li><strong>System-Level (TEST_SYSTEM):</strong> Once per test run (expensive setup)</li>
+                    <li><strong>Feature-Level (TEST_FIXTURE):</strong> Once per test feature (isolation)</li>
+                    <li><strong>Nested/Scoped (with_fixture):</strong> Callback-scoped (fine-grained control)</li>
+                </ul>
+
+                <h4>3. Mathematical Model Library (MML) Integration</h4>
+                <p>
+                    All classes provide model queries for formal verification:
+                </p>
+                <ul>
+                    <li>initialization_state (TEST_SYSTEM): 0 or 1</li>
+                    <li>lifecycle_state (TEST_FIXTURE): 0 or 1</li>
+                </ul>
+                <p>
+                    Model queries enable postcondition frame conditions to verify what did NOT change.
+                </p>
+
+                <h4>4. SCOOP Compatibility</h4>
+                <p>
+                    All classes are SCOOP-compatible:
+                </p>
+                <ul>
+                    <li>concurrency="scoop" in ECF</li>
+                    <li>void_safety="all" enforced</li>
+                    <li>No shared mutable state without locking</li>
+                    <li>Separate references supported</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Class Hierarchy</h3>
+
+                <pre><code>ANY
+├── TEST_SYSTEM (deferred)
+│   └── TEST_SYSTEM_MOCK (concrete for testing)
+│
+├── TEST_FIXTURE (deferred)
+│   └── TEST_FIXTURE_MOCK (concrete for testing)
+│
+├── TEST_SET_BASE_EXTENDED (deferred fixture hooks)
+│   └── FIXTURE_HOLDER (with_fixture support)
+│
+└── TEST_SET_BASE (deferred, 40+ assertions)
+    └── [User test classes inherit from this]</code></pre>
+
+                <h4>TEST_SYSTEM: System-Level Lifecycle</h4>
+                <ul>
+                    <li><strong>on_prepare_test_system:</strong> Initialize shared resources (once per run start)</li>
+                    <li><strong>on_clean_test_system:</strong> Release shared resources (once per run end)</li>
+                    <li><strong>is_initialized:</strong> Status query (deferred for subclasses)</li>
+                    <li><strong>initialization_state:</strong> Model query for MML verification</li>
+                </ul>
+
+                <h4>TEST_FIXTURE: Feature-Level Lifecycle</h4>
+                <ul>
+                    <li><strong>on_create:</strong> Create fresh state for test (once per feature)</li>
+                    <li><strong>on_destroy:</strong> Clean up state (once per feature)</li>
+                    <li><strong>is_valid:</strong> Status query (deferred for subclasses)</li>
+                    <li><strong>lifecycle_state:</strong> Model query for MML verification</li>
+                </ul>
+
+                <h4>TEST_SET_BASE_EXTENDED: Nested Fixture Support</h4>
+                <ul>
+                    <li><strong>on_prepare_feature/on_clean_feature:</strong> Per-feature hooks (optional)</li>
+                    <li><strong>with_fixture:</strong> Scoped callback execution with LIFO cleanup</li>
+                </ul>
+
+                <h4>TEST_SET_BASE: Assertion Methods (40+)</h4>
+                <ul>
+                    <li>Boolean: assert, assert_true, assert_false</li>
+                    <li>Object: assert_attached, assert_void, assert_same_reference</li>
+                    <li>Equality: assert_equal, assert_not_equal</li>
+                    <li>Numeric: assert_positive, assert_negative, assert_in_range, etc.</li>
+                    <li>String: assert_string_contains, assert_string_starts_with, etc.</li>
+                    <li>Collection: assert_count_equals, assert_iterable_empty, etc.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>State Machine Diagrams</h3>
+
+                <h4>TEST_SYSTEM Lifecycle</h4>
+                <pre><code>┌─────────────────────────────────┐
+│   Uninitialized (False)        │
+│  initialization_state = 0      │
+└─────────────────────────────────┘
+           │
+           │ on_prepare_test_system (called once at run start)
+           │
+           ▼
+┌─────────────────────────────────┐
+│   Initialized (True)           │
+│  initialization_state = 1      │
+└─────────────────────────────────┘
+           │
+           │ on_clean_test_system (called once at run end)
+           │
+           ▼
+┌─────────────────────────────────┐
+│   Uninitialized (False)        │
+│  initialization_state = 0      │
+└─────────────────────────────────┘</code></pre>
+
+                <h4>TEST_FIXTURE Lifecycle</h4>
+                <pre><code>┌─────────────────────────────────┐
+│   Invalid (False)              │
+│  lifecycle_state = 0           │
+└─────────────────────────────────┘
+           │
+           │ on_create (called before each test)
+           │
+           ▼
+┌─────────────────────────────────┐
+│   Valid (True)                 │
+│  lifecycle_state = 1           │
+└─────────────────────────────────┘
+           │
+           │ on_destroy (called after each test)
+           │
+           ▼
+┌─────────────────────────────────┐
+│   Invalid (False)              │
+│  lifecycle_state = 0           │
+└─────────────────────────────────┘</code></pre>
+
+                <h4>Nested Fixture Execution (with_fixture)</h4>
+                <pre><code>with_fixture (callback) execution:
+
+Entry
+  │
+  ├─ Acquire Fixture 1
+  │   │
+  │   ├─ Acquire Fixture 2
+  │   │   │
+  │   │   ├─ Acquire Fixture 3
+  │   │   │   │
+  │   │   │   ├─ Execute callback
+  │   │   │   │
+  │   │   │   └─ (Exception-safe: cleanup runs even if callback throws)
+  │   │   │
+  │   │   └─ Release Fixture 3 (LIFO: last acquired, first released)
+  │   │
+  │   └─ Release Fixture 2
+  │
+  └─ Release Fixture 1
+
+Exit</code></pre>
+            </section>
+
+            <section>
+                <h3>Contract Verification Strategy</h3>
+
+                <h4>Three-Stage Verification</h4>
+                <p>
+                    Contracts are verified in three stages:
+                </p>
+
+                <h5>Stage 1: Precondition Satisfaction</h5>
+                <p>
+                    Verify caller's responsibilities before calling feature:
+                </p>
+                <pre><code>test_prepare_precondition
+    local
+        l_system: TEST_SYSTEM_MOCK
+    do
+        create l_system
+        -- is_initialized is False initially
+        assert ("precondition_holds", not l_system.is_initialized)
+        -- Safe to call on_prepare_test_system
+        l_system.on_prepare_test_system
+    end</code></pre>
+
+                <h5>Stage 2: Postcondition Verification</h5>
+                <p>
+                    Verify feature guarantees after calling:
+                </p>
+                <pre><code>test_prepare_postcondition
+    local
+        l_system: TEST_SYSTEM_MOCK
+    do
+        create l_system
+        l_system.on_prepare_test_system
+        -- Postcondition: system_initialized
+        assert ("postcondition_holds", l_system.is_initialized)
+    end</code></pre>
+
+                <h5>Stage 3: Invariant Maintenance</h5>
+                <p>
+                    Verify class invariants hold after any operation:
+                </p>
+                <pre><code>test_invariant_maintained
+    local
+        l_system: TEST_SYSTEM_MOCK
+        state: INTEGER
+    do
+        create l_system
+        state := l_system.initialization_state
+        -- Invariant: state must be 0 or 1
+        assert ("invariant_before", state = 0 or state = 1)
+
+        l_system.on_prepare_test_system
+        state := l_system.initialization_state
+        -- Invariant still holds
+        assert ("invariant_after", state = 0 or state = 1)
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Frame Conditions (What Did NOT Change)</h3>
+
+                <p>
+                    Postconditions specify state transitions with frame conditions:
+                </p>
+
+                <pre><code>on_prepare_test_system ensures
+    system_initialized: is_initialized
+    state_transition: initialization_state = 1 and old initialization_state = 0
+    -- Frame condition: only initialization_state changed</code></pre>
+
+                <p>
+                    Tests verify frame conditions by comparing old vs. new state:
+                </p>
+
+                <pre><code>test_frame_condition_respected
+    local
+        l_system: TEST_SYSTEM_MOCK
+        old_state, new_state: INTEGER
+    do
+        create l_system
+        old_state := l_system.initialization_state
+        l_system.on_prepare_test_system
+        new_state := l_system.initialization_state
+
+        -- Frame condition verified
+        assert ("state_changed", old_state = 0 and new_state = 1)
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Exception Safety Strategy</h3>
+
+                <p>
+                    Cleanup is guaranteed even if logic throws:
+                </p>
+
+                <pre><code>test_exception_safety
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        create l_fixture
+        l_fixture.on_create
+
+        -- Even if test logic throws, on_destroy guaranteed to run
+        -- Eiffel's exception handling ensures postcondition holds
+        l_fixture.on_destroy
+
+        -- Postcondition verifies cleanup completed
+        assert ("fixture_cleaned", not l_fixture.is_valid)
+    end</code></pre>
+
+                <p>
+                    The rescue clause in on_destroy ensures cleanup runs:
+                </p>
+
+                <pre><code>on_destroy
+    require fixture_valid: is_valid
+    do
+        -- Cleanup logic (may throw)
+        perform_cleanup
+    rescue
+        -- Even if above throws, ensure postcondition holds
+    ensure fixture_invalid: not is_valid
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Performance Characteristics</h3>
+
+                <h4>Fixture Overhead</h4>
+                <ul>
+                    <li><strong>System-Level:</strong> O(1) per test run (amortized)</li>
+                    <li><strong>Feature-Level:</strong> O(n) per n tests (one per test feature)</li>
+                    <li><strong>Nested/Scoped:</strong> O(1) per scope entry/exit</li>
+                </ul>
+
+                <h4>Assertion Overhead</h4>
+                <ul>
+                    <li><strong>Simple assertions:</strong> O(1) (boolean, equality)</li>
+                    <li><strong>String assertions:</strong> O(m) where m = string length</li>
+                    <li><strong>Collection assertions:</strong> O(n) where n = collection size</li>
+                </ul>
+
+                <h4>Memory Usage</h4>
+                <ul>
+                    <li>Model queries: O(n) where n = collection size (for MML_MAP, MML_SET, etc.)</li>
+                    <li>Test instances: One per test feature (garbage collected after test)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Extension Points</h3>
+
+                <h4>Adding Custom Assertions</h4>
+                <pre><code>class MY_TEST_SET
+inherit
+    TEST_SET_BASE
+feature
+    assert_positive (tag: STRING; value: INTEGER)
+        do
+            assert (tag, value > 0)
+        end
+end</code></pre>
+
+                <h4>Implementing Custom Fixtures</h4>
+                <pre><code>class DATABASE_FIXTURE
+inherit
+    TEST_FIXTURE
+feature
+    on_create
+        do
+            database.connect ("test_db")
+        ensure
+            fixture_valid: is_valid
+        end
+
+    on_destroy
+        do
+            database.close
+        ensure
+            fixture_invalid: not is_valid
+        end
+
+    is_valid: BOOLEAN
+        do
+            Result := database.is_connected
+        end
+end</code></pre>
+
+                <h4>Extending TEST_SYSTEM</h4>
+                <pre><code>class MY_APP_TEST_SYSTEM
+inherit
+    TEST_SYSTEM
+feature
+    on_prepare_test_system
+        do
+            -- Initialize shared resources
+        end
+
+    on_clean_test_system
+        do
+            -- Clean up shared resources
+        end
+
+    is_initialized: BOOLEAN
+        -- Return True if system ready, False if cleaned
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Future Extensions</h3>
+
+                <ul>
+                    <li><strong>Phase 5B+:</strong> Deep exception-safety testing (1000+ scenarios)</li>
+                    <li><strong>Phase 5C+:</strong> LIFO ordering verification with MML_SEQUENCE</li>
+                    <li><strong>Phase 5D+:</strong> Performance benchmarking (< 10% overhead)</li>
+                    <li><strong>Phase 6:</strong> SCOOP concurrency stress tests (100+ scenarios)</li>
+                    <li><strong>Phase 7+:</strong> Domain-specific assertion implementations</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>References</h3>
+
+                <ul>
+                    <li><a href="user-guide.html">User Guide</a> - Tutorial and usage examples</li>
+                    <li><a href="api-reference.html">API Reference</a> - Complete class documentation</li>
+                    <li><a href="cookbook.html">Cookbook</a> - Real-world recipes and patterns</li>
+                </ul>
+            </section>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>

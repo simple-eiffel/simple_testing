@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">User Guide</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="#guide">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="guide">
+            <h2>User Guide</h2>
+
+            <section>
+                <h3>Introduction</h3>
+                <p>
+                    <strong>simple_testing</strong> is a production-ready test framework for Eiffel that provides:
+                </p>
+                <ul>
+                    <li><strong>Design by Contract (DBC) Support:</strong> Contracts are tests brought into classes with formal verification</li>
+                    <li><strong>Advanced Fixtures:</strong> System-level (once per run), feature-level (per test), and nested (scoped) fixtures</li>
+                    <li><strong>40+ Assertion Methods:</strong> Comprehensive assertions for all data types</li>
+                    <li><strong>Mathematical Model Library (MML):</strong> Formal verification of state transitions</li>
+                    <li><strong>SCOOP Compatible:</strong> Concurrency-ready with proper actor model support</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Installation</h3>
+                <p>Add to your ECF configuration:</p>
+                <pre><code>&lt;library name="simple_testing" location="$SIMPLE_EIFFEL/simple_testing/simple_testing.ecf"/&gt;</code></pre>
+                <p>Ensure the SIMPLE_EIFFEL environment variable is set to your ecosystem root (e.g., D:\prod).</p>
+            </section>
+
+            <section>
+                <h3>Basic Test Class</h3>
+                <p>Create a test class inheriting from TEST_SET_BASE:</p>
+                <pre><code>class MY_TEST_SET
+inherit
+    TEST_SET_BASE
+
+feature -- Tests
+
+    test_addition
+        local
+            l_result: INTEGER
+        do
+            l_result := 2 + 3
+            assert_equal ("sum", 5, l_result)
+        end
+
+    test_list_operations
+        local
+            l_list: ARRAYED_LIST [INTEGER]
+        do
+            create l_list.make (5)
+            l_list.extend (1)
+            l_list.extend (2)
+            l_list.extend (3)
+            assert_count_equals ("list_size", 3, l_list)
+            assert_equal ("first_item", 1, l_list.first)
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Three-Tier Fixture Architecture</h3>
+
+                <h4>1. System-Level Fixtures (Singleton)</h4>
+                <p>
+                    Run <strong>once</strong> at test run start/end. Perfect for expensive setup (database, server):
+                </p>
+                <pre><code>class MY_APP_TEST_SYSTEM
+inherit TEST_SYSTEM
+feature
+    on_prepare_test_system
+        do
+            -- Called ONCE before any test runs
+            -- Initialize database, start server, create pools
+            database.connect ("test_db")
+            server.start
+        end
+
+    on_clean_test_system
+        do
+            -- Called ONCE after all tests complete
+            -- Exception-safe: runs even if tests fail
+            database.close
+            server.stop
+        end
+
+    is_initialized: BOOLEAN
+        -- Must return True after on_prepare, False after on_clean
+end</code></pre>
+
+                <h4>2. Feature-Level Fixtures (Per-Test)</h4>
+                <p>
+                    Run <strong>before/after each test feature</strong>. Provides isolation between tests:
+                </p>
+                <pre><code>test_with_isolated_fixture
+    local
+        l_fixture: TEST_FIXTURE_MOCK
+    do
+        -- Create fresh fixture for this test
+        create l_fixture
+        l_fixture.on_create  -- Setup
+
+        -- Test logic - fixture in valid state
+        assert ("is_valid", l_fixture.is_valid)
+
+        l_fixture.on_destroy  -- Cleanup
+        assert ("is_invalid", not l_fixture.is_valid)
+    end</code></pre>
+
+                <h4>3. Nested/Scoped Fixtures</h4>
+                <p>
+                    Execute callback in fixture context with automatic cleanup (LIFO):
+                </p>
+                <pre><code>test_with_nested_fixtures
+    local
+        l_test: FIXTURE_HOLDER
+    do
+        create l_test
+        l_test.with_fixture (agent do
+            -- Fixture acquired here
+            -- Even if exception thrown, cleanup runs
+            perform_test_logic
+        end)
+        -- Fixture automatically released here
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Assertion Methods</h3>
+
+                <h4>Boolean Assertions</h4>
+                <pre><code>assert ("condition", True)
+assert_true ("explicit", condition)
+assert_false ("negation", not condition)</code></pre>
+
+                <h4>Object Assertions</h4>
+                <pre><code>assert_attached ("not_void", obj)
+assert_void ("is_void", optional)
+assert_same_reference ("same", obj1, obj2)
+assert_not_same_reference ("different", obj1, obj2)</code></pre>
+
+                <h4>Equality Assertions</h4>
+                <pre><code>assert_equal ("equals", expected, actual)
+assert_not_equal ("not_equals", x, y)</code></pre>
+
+                <h4>Numeric Assertions</h4>
+                <pre><code>assert_positive ("positive", count)
+assert_negative ("negative", delta)
+assert_zero ("zero", value)
+assert_non_zero ("non_zero", x)
+assert_in_range ("range", value, 1, 100)
+assert_greater_than ("gt", value, 50)
+assert_less_than ("lt", value, 50)</code></pre>
+
+                <h4>String Assertions</h4>
+                <pre><code>assert_string_contains ("has", output, "ERROR")
+assert_string_not_contains ("no", output, "FAIL")
+assert_string_starts_with ("prefix", str, "http")
+assert_string_ends_with ("suffix", str, ".txt")
+assert_string_empty ("empty", var)
+assert_string_not_empty ("not_empty", var)
+assert_string_length ("len", str, 10)</code></pre>
+
+                <h4>Collection Assertions</h4>
+                <pre><code>assert_count_equals ("size", 5, my_list)
+assert_iterable_empty ("empty", collection)
+assert_iterable_not_empty ("has_items", collection)
+assert_array_has_item ("contains", arr, item)
+assert_array_not_has_item ("excludes", arr, item)</code></pre>
+            </section>
+
+            <section>
+                <h3>Contract-Driven Testing</h3>
+                <p>
+                    simple_testing is designed around <strong>Design by Contract</strong>. Contracts are tests:
+                </p>
+                <pre><code>feature
+    add_item (a_item: ITEM)
+        require
+            item_not_void: a_item /= Void
+            not_duplicate: not has (a_item)
+        do
+            items.extend (a_item)
+        ensure
+            item_added: has (a_item)
+            count_increased: count = old count + 1
+        end</code></pre>
+                <p>
+                    Tests verify postconditions in isolation:
+                </p>
+                <pre><code>test_add_item
+    local
+        l_items: ITEM_LIST
+        l_item: ITEM
+    do
+        create l_items.make
+        create l_item
+
+        l_items.add_item (l_item)
+
+        -- Verify postconditions
+        assert ("item_added", l_items.has (l_item))
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Mathematical Model Library (MML)</h3>
+                <p>
+                    simple_testing integrates with <strong>simple_mml</strong> for formal verification. Model queries capture abstract state:
+                </p>
+                <pre><code>class SIMPLE_CACHE [K, V]
+feature -- Model Queries
+    items_model: MML_MAP [K, V]
+        do
+            create Result.make_empty
+            across internal_table as ic loop
+                Result := Result.extended (ic.key, ic.item)
+            end
+        end
+
+feature -- Tests use model queries
+test_cache_correctness
+    local
+        l_cache: SIMPLE_CACHE [STRING, INTEGER]
+    do
+        create l_cache.make (10)
+        l_cache.put ("key", 42)
+
+        -- Verify using model
+        assert ("has_key", l_cache.items_model.has ("key"))
+        assert ("value_stored", l_cache.items_model ["key"] = 42)
+    end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>SCOOP Compatibility</h3>
+                <p>
+                    simple_testing is SCOOP-ready. Use it with concurrent systems:
+                </p>
+                <pre><code>test_concurrent_fixture
+    local
+        l_fixture: separate TEST_FIXTURE_MOCK  -- separate = separate actor
+    do
+        create l_fixture
+        -- All calls are queued by SCOOP actor semantics
+        l_fixture.on_create
+        assert ("valid", l_fixture.is_valid)
+        l_fixture.on_destroy
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Best Practices</h3>
+                <ul>
+                    <li><strong>Use contracts:</strong> Write require/ensure first, then tests verify them</li>
+                    <li><strong>One assertion per focus:</strong> Each test should verify one specific behavior</li>
+                    <li><strong>Name tests clearly:</strong> test_* names should describe what is tested</li>
+                    <li><strong>Use appropriate fixtures:</strong> System-level for expensive setup, feature-level for isolation</li>
+                    <li><strong>Verify postconditions:</strong> Tests check ensure clauses are satisfied</li>
+                    <li><strong>Check invariants:</strong> Verify class invariants hold after operations</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Next Steps</h3>
+                <ul>
+                    <li><a href="cookbook.html">Cookbook</a> - Real-world recipes and patterns</li>
+                    <li><a href="api-reference.html">API Reference</a> - Complete API documentation</li>
+                    <li><a href="architecture.html">Architecture</a> - Design and implementation details</li>
+                </ul>
+            </section>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>
