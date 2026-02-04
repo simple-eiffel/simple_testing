@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookbook - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">Cookbook - Recipes & Patterns</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="api-reference.html">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="#cookbook">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="cookbook">
+            <h2>Cookbook - Real-World Recipes</h2>
+
+            <section>
+                <h3>Recipe 1: Testing Database Operations</h3>
+
+                <p><strong>Scenario:</strong> You need to test database CRUD operations with fresh database per test.</p>
+
+                <pre><code>class DATABASE_TEST_SYSTEM
+inherit TEST_SYSTEM
+feature
+    on_prepare_test_system
+        do
+            -- Initialize test database once per test run
+            database.connect ("test_db")
+            database.create_schema
+        end
+
+    on_clean_test_system
+        do
+            -- Cleanup database once at end
+            database.drop_schema
+            database.close
+        end
+
+    is_initialized: BOOLEAN
+        do
+            Result := database.is_connected
+        end
+end
+
+class DATABASE_FIXTURE
+inherit TEST_FIXTURE
+feature
+    on_create
+        do
+            -- Start transaction for this test
+            database.begin_transaction
+        end
+
+    on_destroy
+        do
+            -- Rollback transaction (undo test changes)
+            database.rollback
+        end
+
+    is_valid: BOOLEAN
+        do
+            Result := database.in_transaction
+        end
+end
+
+class MY_DATABASE_TESTS
+inherit TEST_SET_BASE
+feature
+    test_insert_user
+        local
+            l_fixture: DATABASE_FIXTURE
+            l_user: USER
+        do
+            create l_fixture
+            l_fixture.on_create
+
+            create l_user.make ("john", "password")
+            database.insert_user (l_user)
+
+            assert_true ("user_inserted", database.user_exists ("john"))
+            l_fixture.on_destroy
+        end
+
+    test_update_user
+        local
+            l_fixture: DATABASE_FIXTURE
+            l_user: USER
+        do
+            create l_fixture
+            l_fixture.on_create
+
+            create l_user.make ("jane", "password")
+            database.insert_user (l_user)
+            l_user.set_password ("newpassword")
+            database.update_user (l_user)
+
+            assert_equal ("password_updated", "newpassword",
+                database.get_user ("jane").password)
+            l_fixture.on_destroy
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 2: Testing HTTP API Endpoints</h3>
+
+                <p><strong>Scenario:</strong> Test REST API with server startup/shutdown.</p>
+
+                <pre><code>class API_TEST_SYSTEM
+inherit TEST_SYSTEM
+feature
+    on_prepare_test_system
+        do
+            -- Start HTTP server once
+            api_server.start (8080)
+        end
+
+    on_clean_test_system
+        do
+            -- Shutdown server once
+            api_server.stop
+        end
+
+    is_initialized: BOOLEAN
+        do
+            Result := api_server.is_running
+        end
+end
+
+class API_REQUEST_FIXTURE
+inherit TEST_FIXTURE
+feature
+    on_create
+        do
+            -- Create fresh HTTP client per test
+            client.reset
+        end
+
+    on_destroy
+        do
+            -- Cleanup connection
+            client.close
+        end
+
+    is_valid: BOOLEAN
+        do
+            Result := client.is_ready
+        end
+end
+
+class API_TESTS
+inherit TEST_SET_BASE
+feature
+    test_get_user
+        local
+            l_fixture: API_REQUEST_FIXTURE
+            l_response: HTTP_RESPONSE
+        do
+            create l_fixture
+            l_fixture.on_create
+
+            l_response := client.get ("http://localhost:8080/users/1")
+
+            assert_equal ("status_code", 200, l_response.status)
+            assert_string_contains ("response_has_name", l_response.body, "john")
+            l_fixture.on_destroy
+        end
+
+    test_post_user
+        local
+            l_fixture: API_REQUEST_FIXTURE
+            l_response: HTTP_RESPONSE
+            l_body: STRING
+        do
+            create l_fixture
+            l_fixture.on_create
+
+            l_body := "{""name"": ""jane"", ""email"": ""jane@example.com""}"
+            l_response := client.post ("http://localhost:8080/users", l_body)
+
+            assert_equal ("created_status", 201, l_response.status)
+            l_fixture.on_destroy
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 3: Testing with Nested Fixtures (Scoped Cleanup)</h3>
+
+                <p><strong>Scenario:</strong> Multiple resources need LIFO cleanup (last acquired, first released).</p>
+
+                <pre><code>class TRANSACTION_FIXTURE
+inherit FIXTURE_HOLDER
+feature
+    test_nested_transactions
+        local
+            l_test: TRANSACTION_FIXTURE
+        do
+            create l_test
+            l_test.with_fixture (agent do
+                database.begin_transaction
+                -- Outer transaction active
+
+                l_test.with_fixture (agent do
+                    database.begin_savepoint ("sp1")
+                    -- Savepoint active
+
+                    perform_test_operations
+
+                    database.rollback_to_savepoint ("sp1")
+                    -- Savepoint cleaned up (LIFO)
+                end)
+
+                database.commit  -- Outer transaction active
+                -- Outer transaction cleaned up (LIFO)
+            end)
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 4: Testing Collections with Assertions</h3>
+
+                <p><strong>Scenario:</strong> Verify collection operations maintain invariants.</p>
+
+                <pre><code>class COLLECTION_TESTS
+inherit TEST_SET_BASE
+feature
+    test_list_operations
+        local
+            l_list: ARRAYED_LIST [INTEGER]
+        do
+            create l_list.make (5)
+
+            -- Test add
+            l_list.extend (10)
+            l_list.extend (20)
+            l_list.extend (30)
+            assert_count_equals ("size_after_add", 3, l_list)
+            assert_array_has_item ("contains_10", l_list, 10)
+            assert_array_has_item ("contains_20", l_list, 20)
+
+            -- Test remove
+            l_list.prune_all (20)
+            assert_count_equals ("size_after_remove", 2, l_list)
+            assert_array_not_has_item ("20_removed", l_list, 20)
+
+            -- Test clear
+            l_list.wipe_out
+            assert_iterable_empty ("list_empty", l_list)
+        end
+
+    test_set_uniqueness
+        local
+            l_set: HASH_SET [STRING]
+        do
+            create l_set.make (5)
+
+            l_set.extend ("apple")
+            l_set.extend ("banana")
+            l_set.extend ("apple")  -- Duplicate
+
+            -- Set should have only 2 items (uniqueness maintained)
+            assert_count_equals ("set_unique", 2, l_set)
+            assert_array_has_item ("has_apple", l_set, "apple")
+            assert_array_has_item ("has_banana", l_set, "banana")
+        end
+
+    test_empty_collection_assertions
+        local
+            l_empty_list: ARRAYED_LIST [STRING]
+            l_non_empty_list: ARRAYED_LIST [STRING]
+        do
+            create l_empty_list.make (0)
+            create l_non_empty_list.make (5)
+            l_non_empty_list.extend ("item")
+
+            assert_iterable_empty ("empty_list", l_empty_list)
+            assert_iterable_not_empty ("non_empty_list", l_non_empty_list)
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 5: Testing String Operations</h3>
+
+                <p><strong>Scenario:</strong> Verify string manipulation with detailed assertions.</p>
+
+                <pre><code>class STRING_TESTS
+inherit TEST_SET_BASE
+feature
+    test_string_parsing
+        local
+            l_input, l_result: STRING
+        do
+            l_input := "name:john;age:30"
+            l_result := parse_config (l_input, "name")
+
+            assert_string_not_empty ("result_not_empty", l_result)
+            assert_equal ("parsed_value", "john", l_result)
+        end
+
+    test_string_formatting
+        local
+            l_formatted: STRING
+        do
+            l_formatted := format_date (2026, 2, 4)
+
+            assert_string_not_empty ("formatted_not_empty", l_formatted)
+            assert_string_contains ("has_year", l_formatted, "2026")
+            assert_string_contains ("has_month", l_formatted, "02")
+            assert_string_contains ("has_day", l_formatted, "04")
+            assert_string_length ("correct_length", l_formatted, 10)
+        end
+
+    test_string_contains_case_sensitive
+        local
+            l_text: STRING
+        do
+            l_text := "Hello World"
+
+            assert_string_contains ("contains_hello", l_text, "Hello")
+            assert_string_contains ("contains_world", l_text, "World")
+            assert_string_not_contains ("no_lowercase_hello", l_text, "hello")
+        end
+
+    test_string_prefix_suffix
+        local
+            l_http_url: STRING
+        do
+            l_http_url := "https://example.com/api/users"
+
+            assert_string_starts_with ("http_protocol", l_http_url, "https://")
+            assert_string_ends_with ("path_users", l_http_url, "users")
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 6: Testing with Model Queries (MML)</h3>
+
+                <p><strong>Scenario:</strong> Formally verify state transitions using MML model queries.</p>
+
+                <pre><code>class STATE_MACHINE_TESTS
+inherit TEST_SET_BASE
+feature
+    test_state_transition_with_model
+        local
+            l_system: TEST_SYSTEM_MOCK
+            old_state, new_state: INTEGER
+        do
+            create l_system
+
+            -- Initial state
+            old_state := l_system.initialization_state
+            assert_equal ("initial_uninitialized", 0, old_state)
+
+            -- Transition to initialized
+            l_system.on_prepare_test_system
+            new_state := l_system.initialization_state
+            assert_equal ("after_prepare_initialized", 1, new_state)
+
+            -- Transition back to uninitialized
+            l_system.on_clean_test_system
+            new_state := l_system.initialization_state
+            assert_equal ("after_clean_uninitialized", 0, new_state)
+        end
+
+    test_fixture_lifecycle_with_model
+        local
+            l_fixture: TEST_FIXTURE_MOCK
+            old_state, new_state: INTEGER
+        do
+            create l_fixture
+
+            -- Initial invalid state
+            old_state := l_fixture.lifecycle_state
+            assert_equal ("initial_invalid", 0, old_state)
+
+            -- Create -> valid
+            l_fixture.on_create
+            new_state := l_fixture.lifecycle_state
+            assert_equal ("after_create_valid", 1, new_state)
+
+            -- Destroy -> invalid
+            l_fixture.on_destroy
+            new_state := l_fixture.lifecycle_state
+            assert_equal ("after_destroy_invalid", 0, new_state)
+        end
+
+    test_frame_condition_only_state_changes
+        local
+            l_system: TEST_SYSTEM_MOCK
+            state_before, state_after: INTEGER
+        do
+            create l_system
+
+            state_before := l_system.initialization_state
+            l_system.on_prepare_test_system
+            state_after := l_system.initialization_state
+
+            -- Frame condition: only state changed
+            assert ("state_transition", state_before = 0 and state_after = 1)
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 7: Testing Exception-Safety</h3>
+
+                <p><strong>Scenario:</strong> Verify cleanup runs even if logic throws.</p>
+
+                <pre><code>class EXCEPTION_SAFETY_TESTS
+inherit TEST_SET_BASE
+feature
+    test_exception_safety_in_fixture
+        local
+            l_fixture: TEST_FIXTURE_MOCK
+        do
+            create l_fixture
+            l_fixture.on_create
+            assert ("created", l_fixture.is_valid)
+
+            -- Simulate test that might throw
+            perform_risky_operation
+
+            -- Even if risky_operation threw, on_destroy must run
+            l_fixture.on_destroy
+            assert ("destroyed", not l_fixture.is_valid)
+        end
+
+    test_cleanup_despite_error
+        local
+            l_fixture: TEST_FIXTURE_MOCK
+        do
+            create l_fixture
+            l_fixture.on_create
+
+            -- This might throw, but postcondition guarantees cleanup
+            if has_error then
+                -- Cleanup still runs
+                l_fixture.on_destroy
+            else
+                l_fixture.on_destroy
+            end
+
+            assert ("cleanup_guaranteed", not l_fixture.is_valid)
+        end
+
+    test_nested_fixture_exception_cleanup
+        local
+            l_test: FIXTURE_HOLDER
+        do
+            create l_test
+            l_test.with_fixture (agent do
+                -- Even if this throws...
+                perform_operation_that_might_throw
+                -- ...cleanup still runs on exit (LIFO order)
+            end)
+            -- Fixture cleanup guaranteed
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Recipe 8: Testing Contract Violations</h3>
+
+                <p><strong>Scenario:</strong> Verify preconditions and postconditions with edge cases.</p>
+
+                <pre><code>class CONTRACT_TESTS
+inherit TEST_SET_BASE
+feature
+    test_precondition_must_hold
+        local
+            l_system: TEST_SYSTEM_MOCK
+        do
+            create l_system
+            -- Precondition: system_not_initialized is True
+            assert ("precondition_satisfied", not l_system.is_initialized)
+            -- Safe to call
+            l_system.on_prepare_test_system
+        end
+
+    test_postcondition_holds_after_operation
+        local
+            l_system: TEST_SYSTEM_MOCK
+        do
+            create l_system
+            l_system.on_prepare_test_system
+            -- Postcondition: system_initialized is True
+            assert ("postcondition_holds", l_system.is_initialized)
+        end
+
+    test_invariant_always_maintained
+        local
+            l_system: TEST_SYSTEM_MOCK
+            state: INTEGER
+        do
+            create l_system
+
+            -- Check invariant before any operation
+            state := l_system.initialization_state
+            assert ("invariant_initial", state = 0 or state = 1)
+
+            l_system.on_prepare_test_system
+
+            -- Check invariant after operation
+            state := l_system.initialization_state
+            assert ("invariant_after_prepare", state = 0 or state = 1)
+
+            l_system.on_clean_test_system
+
+            -- Check invariant still holds
+            state := l_system.initialization_state
+            assert ("invariant_after_clean", state = 0 or state = 1)
+        end
+end</code></pre>
+            </section>
+
+            <section>
+                <h3>Common Patterns & Best Practices</h3>
+
+                <h4>Pattern 1: Arrange-Act-Assert (AAA)</h4>
+                <pre><code>test_something
+    local
+        l_fixture: MY_FIXTURE
+    do
+        -- ARRANGE: Setup
+        create l_fixture
+        l_fixture.on_create
+
+        -- ACT: Execute operation
+        l_fixture.perform_operation
+
+        -- ASSERT: Verify results
+        assert ("expected_result", l_fixture.result_valid)
+
+        l_fixture.on_destroy
+    end</code></pre>
+
+                <h4>Pattern 2: Test One Thing</h4>
+                <pre><code>-- GOOD: One test, one assertion focus
+test_add_increases_count
+    local
+        l_list: ARRAYED_LIST [INTEGER]
+    do
+        create l_list.make (5)
+        l_list.extend (1)
+        assert_count_equals ("count_increased", 1, l_list)
+    end
+
+-- AVOID: Multiple concerns in one test
+test_list_operations  -- Too broad!
+    local
+        l_list: ARRAYED_LIST [INTEGER]
+    do
+        -- Testing add, remove, clear all at once
+    end</code></pre>
+
+                <h4>Pattern 3: Use Descriptive Assertion Tags</h4>
+                <pre><code>-- GOOD: Clear what is being tested
+assert_positive ("list_count_positive", list.count)
+assert_equal ("user_name_matches", "john", user.name)
+
+-- AVOID: Vague tags
+assert_positive ("test1", list.count)
+assert_equal ("x", "john", user.name)</code></pre>
+
+                <h4>Pattern 4: Test Edge Cases</h4>
+                <pre><code>test_empty_list_operations
+    local
+        l_list: ARRAYED_LIST [INTEGER]
+    do
+        create l_list.make (0)
+        assert_iterable_empty ("initially_empty", l_list)
+        -- Test operations on empty collection
+    end
+
+test_single_item_list
+    local
+        l_list: ARRAYED_LIST [INTEGER]
+    do
+        create l_list.make (1)
+        l_list.extend (42)
+        assert_count_equals ("one_item", 1, l_list)
+        -- Test operations with single item
+    end
+
+test_boundary_values
+    local
+        l_value: INTEGER
+    do
+        l_value := 0
+        assert_zero ("zero_boundary", l_value)
+        l_value := 1
+        assert_positive ("one_positive", l_value)
+        l_value := -1
+        assert_negative ("minus_one_negative", l_value)
+    end</code></pre>
+            </section>
+
+            <section>
+                <h3>Troubleshooting</h3>
+
+                <h4>Issue: Assertion fails but reason unclear</h4>
+                <p><strong>Solution:</strong> Use descriptive assertion tags and compare old vs. new state:</p>
+                <pre><code>test_state_change
+    local
+        l_system: TEST_SYSTEM_MOCK
+        old_state, new_state: INTEGER
+    do
+        create l_system
+        old_state := l_system.initialization_state
+        l_system.on_prepare_test_system
+        new_state := l_system.initialization_state
+
+        assert ("state_changed_0_to_1", old_state = 0 and new_state = 1)
+    end</code></pre>
+
+                <h4>Issue: Fixture not cleaning up properly</h4>
+                <p><strong>Solution:</strong> Ensure on_destroy is called and postcondition verified:</p>
+                <pre><code>test_fixture_cleanup
+    local
+        l_fixture: MY_FIXTURE
+    do
+        create l_fixture
+        l_fixture.on_create
+        assert ("created", l_fixture.is_valid)
+
+        l_fixture.on_destroy
+        -- Postcondition guarantees cleanup completed
+        assert ("destroyed", not l_fixture.is_valid)
+    end</code></pre>
+
+                <h4>Issue: Test order dependency</h4>
+                <p><strong>Solution:</strong> Use feature-level fixtures (TEST_FIXTURE) to isolate each test:</p>
+                <pre><code>-- Each test gets fresh fixture (no order dependency)
+test_operation_a
+    local l_fixture: MY_FIXTURE do
+        create l_fixture; l_fixture.on_create
+        -- Fresh state
+    end
+
+test_operation_b
+    local l_fixture: MY_FIXTURE do
+        create l_fixture; l_fixture.on_create
+        -- Also fresh state (not affected by test_operation_a)
+    end</code></pre>
+            </section>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>

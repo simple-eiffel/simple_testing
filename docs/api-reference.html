@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - simple_testing</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="simple_* logo" class="logo">
+        </div>
+        <h1>simple_testing</h1>
+        <p class="tagline">API Reference</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="quick.html">Quick API</a></li>
+            <li><a href="user-guide.html">User Guide</a></li>
+            <li><a href="#api">API Reference</a></li>
+            <li><a href="architecture.html">Architecture</a></li>
+            <li><a href="cookbook.html">Cookbook</a></li>
+            <li><a href="https://github.com/simple-eiffel/simple_testing">GitHub</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="api">
+            <h2>API Reference</h2>
+
+            <section>
+                <h3>TEST_SYSTEM</h3>
+                <p><strong>Purpose:</strong> System-level fixture infrastructure (singleton, once per test run)</p>
+
+                <h4>Deferred Features</h4>
+                <pre><code>is_initialized: BOOLEAN
+    -- Is the test system initialized?
+    -- Must return True after on_prepare_test_system, False after on_clean_test_system</code></pre>
+
+                <h4>Lifecycle Hooks</h4>
+                <pre><code>on_prepare_test_system
+    -- Initialize system-level resources (database, server, pools)
+    -- Called exactly once at test run start, before any test class
+    require: system_not_initialized: not is_initialized
+    ensure: system_initialized: is_initialized
+
+on_clean_test_system
+    -- Clean up system-level resources
+    -- Called exactly once at test run end, after all tests
+    -- Must be exception-safe: cleanup always runs even if tests fail
+    require: system_initialized: is_initialized
+    ensure: system_cleaned: not is_initialized</code></pre>
+
+                <h4>Model Queries (MML)</h4>
+                <pre><code>initialization_state: INTEGER
+    -- Mathematical model of initialization state
+    -- Returns 0 (uninitialized) or 1 (initialized)
+    -- Invariant: initialization_state = 0 or initialization_state = 1</code></pre>
+            </section>
+
+            <section>
+                <h3>TEST_FIXTURE</h3>
+                <p><strong>Purpose:</strong> Feature-level fixture infrastructure (once per test feature)</p>
+
+                <h4>Deferred Features</h4>
+                <pre><code>is_valid: BOOLEAN
+    -- Is fixture in valid state for testing?
+    -- Must return False initially, True after on_create, False after on_destroy</code></pre>
+
+                <h4>Lifecycle Hooks</h4>
+                <pre><code>on_create
+    -- Initialize fixture state (called by constructor)
+    -- Must establish preconditions for test logic
+    ensure: fixture_valid: is_valid
+
+on_destroy
+    -- Clean up fixture state (called on destruction)
+    -- Must reverse all state changes made by on_create and test logic
+    require: fixture_valid: is_valid
+    ensure: fixture_invalid: not is_valid</code></pre>
+
+                <h4>Model Queries (MML)</h4>
+                <pre><code>lifecycle_state: INTEGER
+    -- Mathematical model of fixture lifecycle
+    -- Returns 0 (invalid) or 1 (valid)
+    -- Invariant: lifecycle_state = 0 or lifecycle_state = 1</code></pre>
+            </section>
+
+            <section>
+                <h3>TEST_SET_BASE_EXTENDED</h3>
+                <p><strong>Purpose:</strong> Extension points for nested/scoped fixtures</p>
+
+                <h4>Feature-Level Hooks (Optional)</h4>
+                <pre><code>on_prepare_feature
+    -- Set up state for a single test feature (called before each test feature)
+    -- Optional: override to customize per-feature setup
+    ensure: feature_ready: True
+
+on_clean_feature
+    -- Clean up state after a single test feature (called after each test feature)
+    -- Optional: override to customize per-feature cleanup
+    -- Must be exception-safe if test threw an exception
+    ensure: feature_cleaned: True</code></pre>
+
+                <h4>Nested Fixture Support</h4>
+                <pre><code>with_fixture (callback: PROCEDURE)
+    -- Execute callback in scoped fixture context
+    -- Fixture resources acquired on entry, released on exit (LIFO order)
+    -- Exception-safe: cleanup runs even if callback throws
+    require: callback_not_void: callback /= Void
+    ensure: fixture_context_exited: True</code></pre>
+            </section>
+
+            <section>
+                <h3>TEST_SET_BASE</h3>
+                <p><strong>Purpose:</strong> Base class with 40+ assertion methods</p>
+
+                <h4>Boolean Assertions</h4>
+                <pre><code>assert (condition_name: STRING; condition: BOOLEAN)
+    -- Assert that condition is True
+
+assert_true (condition_name: STRING; condition: BOOLEAN)
+    -- Explicitly assert True
+
+assert_false (condition_name: STRING; condition: BOOLEAN)
+    -- Explicitly assert False</code></pre>
+
+                <h4>Object Assertions</h4>
+                <pre><code>assert_attached (tag: STRING; obj: detachable ANY)
+    -- Assert obj is not Void
+
+assert_void (tag: STRING; obj: detachable ANY)
+    -- Assert obj is Void
+
+assert_same_reference (tag: STRING; obj1, obj2: ANY)
+    -- Assert obj1 and obj2 are the same object
+
+assert_not_same_reference (tag: STRING; obj1, obj2: ANY)
+    -- Assert obj1 and obj2 are different objects</code></pre>
+
+                <h4>Equality Assertions</h4>
+                <pre><code>assert_equal (tag: STRING; expected, actual: ANY)
+    -- Assert expected = actual
+
+assert_not_equal (tag: STRING; x, y: ANY)
+    -- Assert x /= y</code></pre>
+
+                <h4>Numeric Assertions (INTEGER)</h4>
+                <pre><code>assert_positive (tag: STRING; value: INTEGER)
+    -- Assert value > 0
+
+assert_negative (tag: STRING; value: INTEGER)
+    -- Assert value < 0
+
+assert_zero (tag: STRING; value: INTEGER)
+    -- Assert value = 0
+
+assert_non_zero (tag: STRING; value: INTEGER)
+    -- Assert value /= 0
+
+assert_in_range (tag: STRING; value, min, max: INTEGER)
+    -- Assert value is between min and max (inclusive)
+
+assert_greater_than (tag: STRING; value, threshold: INTEGER)
+    -- Assert value > threshold
+
+assert_less_than (tag: STRING; value, threshold: INTEGER)
+    -- Assert value < threshold</code></pre>
+
+                <h4>String Assertions</h4>
+                <pre><code>assert_string_contains (tag: STRING; str, substring: STRING)
+    -- Assert str contains substring
+
+assert_string_not_contains (tag: STRING; str, substring: STRING)
+    -- Assert str does not contain substring
+
+assert_string_starts_with (tag: STRING; str, prefix: STRING)
+    -- Assert str starts with prefix
+
+assert_string_ends_with (tag: STRING; str, suffix: STRING)
+    -- Assert str ends with suffix
+
+assert_string_empty (tag: STRING; str: STRING)
+    -- Assert str is empty
+
+assert_string_not_empty (tag: STRING; str: STRING)
+    -- Assert str is not empty
+
+assert_string_length (tag: STRING; str: STRING; expected_length: INTEGER)
+    -- Assert str has expected_length characters</code></pre>
+
+                <h4>Collection Assertions</h4>
+                <pre><code>assert_count_equals (tag: STRING; expected: INTEGER; collection: ITERABLE)
+    -- Assert collection has expected count
+
+assert_iterable_empty (tag: STRING; collection: ITERABLE)
+    -- Assert collection is empty
+
+assert_iterable_not_empty (tag: STRING; collection: ITERABLE)
+    -- Assert collection is not empty
+
+assert_array_has_item (tag: STRING; arr: ARRAY; item: ANY)
+    -- Assert arr contains item
+
+assert_array_not_has_item (tag: STRING; arr: ARRAY; item: ANY)
+    -- Assert arr does not contain item</code></pre>
+            </section>
+
+            <section>
+                <h3>TEST_SYSTEM_MOCK</h3>
+                <p><strong>Purpose:</strong> Concrete mock implementation of TEST_SYSTEM for testing</p>
+
+                <h4>Redefine</h4>
+                <pre><code>on_prepare_test_system
+    -- Sets initialized_flag to True
+
+on_clean_test_system
+    -- Sets initialized_flag to False</code></pre>
+
+                <h4>Features</h4>
+                <pre><code>is_initialized: BOOLEAN
+    -- Returns current value of initialized_flag</code></pre>
+            </section>
+
+            <section>
+                <h3>TEST_FIXTURE_MOCK</h3>
+                <p><strong>Purpose:</strong> Concrete mock implementation of TEST_FIXTURE for testing</p>
+
+                <h4>Redefine</h4>
+                <pre><code>on_create
+    -- Sets valid_flag to True
+
+on_destroy
+    -- Sets valid_flag to False
+
+is_valid: BOOLEAN
+    -- Returns current value of valid_flag</code></pre>
+            </section>
+
+            <section>
+                <h3>FIXTURE_HOLDER</h3>
+                <p><strong>Purpose:</strong> Holder for with_fixture testing support</p>
+
+                <h4>Redefine</h4>
+                <pre><code>with_fixture (callback: PROCEDURE)
+    -- Execute callback in scoped fixture context
+    -- Calls Precursor for actual implementation</code></pre>
+            </section>
+
+            <section>
+                <h3>Contracts Summary</h3>
+
+                <h4>Preconditions (Must be true before operation)</h4>
+                <pre><code>TEST_SYSTEM.on_prepare_test_system requires: system_not_initialized
+TEST_SYSTEM.on_clean_test_system requires: system_initialized
+TEST_FIXTURE.on_destroy requires: fixture_valid
+TEST_SET_BASE_EXTENDED.with_fixture requires: callback_not_void</code></pre>
+
+                <h4>Postconditions (Guaranteed after operation)</h4>
+                <pre><code>TEST_SYSTEM.on_prepare_test_system ensures: system_initialized
+TEST_SYSTEM.on_clean_test_system ensures: system_cleaned
+TEST_FIXTURE.on_create ensures: fixture_valid
+TEST_FIXTURE.on_destroy ensures: fixture_invalid
+TEST_SET_BASE_EXTENDED.on_prepare_feature ensures: feature_ready
+TEST_SET_BASE_EXTENDED.on_clean_feature ensures: feature_cleaned
+TEST_SET_BASE_EXTENDED.with_fixture ensures: fixture_context_exited</code></pre>
+
+                <h4>Invariants (Always true)</h4>
+                <pre><code>TEST_SYSTEM: initialization_state = 0 or initialization_state = 1
+TEST_FIXTURE: lifecycle_state = 0 or lifecycle_state = 1
+TEST_SET_BASE_EXTENDED: fixture_hooks_maintain_isolation</code></pre>
+            </section>
+
+            <section>
+                <h3>Full Documentation</h3>
+                <p>For comprehensive examples and patterns, see:</p>
+                <ul>
+                    <li><a href="user-guide.html">User Guide</a> - Tutorial and detailed explanations</li>
+                    <li><a href="quick.html">Quick API</a> - Quick reference with code snippets</li>
+                    <li><a href="cookbook.html">Cookbook</a> - Real-world recipes and patterns</li>
+                </ul>
+            </section>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Simple Eiffel Contributors. MIT License.</p>
+            <p><a href="https://github.com/simple-eiffel/simple_testing">GitHub Repository</a></p>
+        </footer>
+    </main>
+</body>
+</html>
