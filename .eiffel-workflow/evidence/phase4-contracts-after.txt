@@ -1,0 +1,15 @@
+src/test_system.e:38:		require
+src/test_system.e:42:		ensure
+src/test_system.e:50:		require
+src/test_system.e:54:		ensure
+src/test_system.e:65:invariant
+src/test_system.e:67:		-- Placeholder invariant - subclasses will override with actual consistency checks
+src/test_fixture.e:40:		ensure
+src/test_fixture.e:47:		require
+src/test_fixture.e:51:		ensure
+src/test_fixture.e:63:invariant
+src/test_set_base_extended.e:59:		ensure
+src/test_set_base_extended.e:70:		ensure
+src/test_set_base_extended.e:88:		require
+src/test_set_base_extended.e:93:		ensure
+src/test_set_base_extended.e:98:invariant

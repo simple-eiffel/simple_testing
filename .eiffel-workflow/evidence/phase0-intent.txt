@@ -1,0 +1,167 @@
+# Phase 0: AI Review Response - Ollama (deepseek-coder-v2:16b)
+
+**Date:** February 4, 2026
+**AI Model:** deepseek-coder-v2:16b
+**Status:** REVIEWED - 10 Probing Questions Generated
+
+---
+
+## AI Review Summary
+
+**Confidence Level:** 60% - Well-intentioned and potentially useful, but specific implementation details and detailed timelines need clarification.
+
+**Top 3 Concerns:**
+1. Clarity of how different isolation levels will be implemented and tested for data integrity
+2. Risk that added complexity in fixtures might lead to increased overhead despite promises
+3. Uncertainty about comprehensiveness of expanded assertions relative to existing frameworks
+
+**Major Gaps:**
+1. Lack of detail on exception handling within fixtures under all error conditions
+2. Missing basic data type assertions (table stakes for modern testing framework)
+
+---
+
+## Probing Questions (with Ollama Analysis)
+
+### Q1: "Fresh state per feature" scope unclear
+**Quote:** "Per-feature isolation verified: each test gets fresh state"
+**Problem:** Does this mean isolated database, or can shared resources exist with constraints?
+**Alternatives:**
+- A) Entirely isolated database per feature (heavyweight)
+- B) Shared DB with transaction rollback per feature (medium)
+- C) Shared state with specific table resets per feature (lightweight)
+
+**Answer:** B - Database transaction rollback per feature. Shared database but transactions auto-rollback after each test feature.
+
+---
+
+### Q2: SCOOP deadlock testing methodology unclear
+**Quote:** "SCOOP deadlock testing: 100+ concurrent scenarios pass"
+**Problem:** What scenarios? How generated? Random? Deterministic? Edge cases?
+**Alternatives:**
+- A) Hand-written representative scenarios (10-20 curated cases)
+- B) Automated fuzzing with concurrency tools (1000+ generated)
+- C) Both approaches (coverage + edge cases)
+
+**Answer:** C - Both approaches. Hand-written scenarios for known SCOOP patterns + automated fuzzing for edge cases. Target: comprehensive coverage of separate/processor interactions.
+
+---
+
+### Q3: "Developer feedback" measurement undefined
+**Quote:** "Developer feedback: 70%+ understand the pattern"
+**Problem:** How measured? Survey? Code review? Adoption?
+**Alternatives:**
+- A) Anonymous survey (1-5 scale on comprehension)
+- B) Code review analysis of fixture usage
+- C) Adoption metrics + support ticket reduction
+
+**Answer:** A+B+C combined. Survey of 20+ developers + code analysis of 5+ simple_* libraries adopting fixtures + GitHub issue reduction on fixture-related questions.
+
+---
+
+### Q4: Performance metric "< 10% overhead" underspecified
+**Quote:** "fixture overhead < 10% of test time"
+**Problem:** Test size assumptions? Measured how? Against what baseline?
+**Alternatives:**
+- A) Overhead per fixture setup/teardown in milliseconds
+- B) Percentage of total test suite time
+- C) Both (ms per op + % of total)
+
+**Answer:** B - Measured as percentage of total test suite time. Benchmark: 1000-test suite with typical test size (100ms per test). Fixture overhead must be < 10% of total.
+
+---
+
+### Q5: Exception safety guarantee in with_fixture unclear
+**Quote:** "Exception-safe cleanup (guaranteed by postconditions)"
+**Problem:** What's guaranteed exactly? Any exceptions? All cases?
+**Alternatives:**
+- A) Cleanup always runs, even if callback throws (strong guarantee)
+- B) Cleanup runs for expected exceptions only
+- C) Cleanup best-effort but not guaranteed on OOM or crash
+
+**Answer:** A - Strong guarantee. Postcondition must hold even if callback throws. Cleanup always runs via DBC (contracts are verified). Exception re-raised after cleanup.
+
+---
+
+### Q6: Expanded assertions - missing basic data type checks?
+**Quote:** "20+ domain-specific assertions (date, path, exception, collection, complex)"
+**Problem:** Does this include basic int, string, float assertions? Or only domain-specific?
+**Alternatives:**
+- A) Only domain-specific (date, path, exception, etc.)
+- B) Basic data types + domain-specific
+- C) Extend TEST_SET_BASE (already has basic types)
+
+**Answer:** C - TEST_SET_BASE already has 65+ assertions including basic types (int, string, float, boolean, collections). Phase 5D adds 20+ domain-specific on top (date, path, exception, complex).
+
+---
+
+### Q7: Timeline determination methodology unclear
+**Quote:** "12-18 months (accelerable to 10-12 with 2 FTE)"
+**Problem:** How determined? Optimistic? Pessimistic? What assumptions?
+**Alternatives:**
+- A) Comparable projects in ecosystem + 20% buffer
+- B) Feature-by-feature bottom-up estimate
+- C) Expert judgment + historical data
+
+**Answer:** A+B - Bottom-up phase estimates (5A=3mo, 5B=2-3mo, 5C=2-3mo, 5D=6mo parallel, 6=1mo) + 20% contingency. Based on similar simple_* library development + SCOOP expertise available.
+
+---
+
+### Q8: System hooks effectiveness measurement unclear
+**Quote:** "on_prepare_test_system / on_clean_test_system"
+**Problem:** How tested for effectiveness in real-world scenarios?
+**Alternatives:**
+- A) Functional tests only (hooks are called, state changes)
+- B) Integration tests with real database/server startup
+- C) Both + stress testing with 1000+ test classes
+
+**Answer:** C - Functional tests (hooks called, state correct) + integration tests (real DB + server) + stress tests (1000+ test classes, resource limits). Proof: all existing simple_* tests pass + new integration gate added.
+
+---
+
+### Q9: Integration with existing tests unclear
+**Quote:** "Per-feature isolation verified: each test gets fresh state"
+**Problem:** Replace or supplement? Coexist? Mandatory or optional?
+**Alternatives:**
+- A) Fixtures mandatory (all tests must use them)
+- B) Fixtures optional (old EQA patterns still work)
+- C) Phased migration (optional then nudge toward adoption)
+
+**Answer:** B - Fixtures completely optional. Zero breaking changes. Existing tests work unchanged. Fixtures available for teams wanting more granular control.
+
+---
+
+### Q10: Phase 5D milestones not defined
+**Quote:** "Phase 5D (6 months, parallel): Expanded assertions"
+**Problem:** No intermediate milestones. How track progress?
+**Alternatives:**
+- A) No milestones (waterfall, delivered at 6-month mark)
+- B) Monthly milestones (1-2 assertion groups per month)
+- C) Quarterly checkpoints (2 assertion groups per quarter)
+
+**Answer:** B - Monthly milestones. Month 1-2: date/time assertions (3-4 methods). Month 2-3: path/file assertions (3-4). Month 3-4: exception assertions (3-4). Month 4-5: collection assertions (4-5). Month 5-6: complex types (3-4). Community feedback between months.
+
+---
+
+## Ollama Assessment
+
+**Strengths Identified:**
+- Well-structured phased approach
+- Clear tier hierarchy (system → class → feature → nested)
+- DBC-based exception safety (novel)
+- SCOOP-native design (leverage Eiffel strength)
+
+**Weaknesses Identified:**
+- Vague metrics ("fresh state", "understand")
+- Underspecified testing methodology (SCOOP deadlock scenarios)
+- Missing baseline data type assertions (already in TEST_SET_BASE per review)
+- Timeline lacks granular milestones
+
+**Recommendation from AI:**
+"Consider adding more concrete implementation details and measurable criteria. The framework appears sound but would benefit from clearer specification of edge cases and error handling scenarios."
+
+---
+
+## Status: REVIEWED & CLARIFIED
+
+Next action: Create intent-v2.md incorporating all answers above.

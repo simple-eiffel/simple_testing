@@ -1,0 +1,156 @@
+src/test_fixture.e:3:		Test-feature-level fixture for reusable setup/cleanup per test feature.
+src/test_fixture.e:5:		Factory pattern: create fixtures locally within test features to isolate state.
+src/test_fixture.e:11:				feature
+src/test_fixture.e:15:						do
+src/test_fixture.e:24:		Key Contract: Fresh state per feature guaranteed via on_create/on_destroy lifecycle.
+src/test_fixture.e:30:deferred class
+src/test_fixture.e:33:feature -- Lifecycle
+src/test_fixture.e:38:		do
+src/test_fixture.e:40:		ensure
+src/test_fixture.e:47:		do
+src/test_fixture.e:49:		ensure
+src/test_fixture.e:53:feature -- Query
+src/test_fixture.e:57:		deferred
+src/test_fixture.e:60:invariant
+src/test_set_base.e:21:			feature
+src/test_set_base.e:23:					do
+src/test_set_base.e:33:deferred class
+src/test_set_base.e:53:feature -- Boolean assertions
+src/test_set_base.e:57:		do
+src/test_set_base.e:59:		ensure
+src/test_set_base.e:65:		do
+src/test_set_base.e:67:		ensure
+src/test_set_base.e:73:		do
+src/test_set_base.e:75:		ensure
+src/test_set_base.e:79:feature -- Object/Reference assertions
+src/test_set_base.e:85:		do
+src/test_set_base.e:90:		ensure then
+src/test_set_base.e:98:		do
+src/test_set_base.e:103:		ensure then
+src/test_set_base.e:111:		do
+src/test_set_base.e:116:		ensure
+src/test_set_base.e:124:		do
+src/test_set_base.e:129:		ensure
+src/test_set_base.e:133:feature -- Equality assertions
+src/test_set_base.e:139:		do
+src/test_set_base.e:162:		do
+src/test_set_base.e:179:feature -- Numeric assertions (INTEGER)
+src/test_set_base.e:185:		do
+src/test_set_base.e:193:		ensure then
+src/test_set_base.e:201:		do
+src/test_set_base.e:209:		ensure
+src/test_set_base.e:217:		do
+src/test_set_base.e:225:		ensure
+src/test_set_base.e:233:		do
+src/test_set_base.e:241:		ensure
+src/test_set_base.e:249:		do
+src/test_set_base.e:257:		ensure
+src/test_set_base.e:265:		do
+src/test_set_base.e:273:		ensure
+src/test_set_base.e:279:		require
+src/test_set_base.e:283:		do
+src/test_set_base.e:294:		ensure
+src/test_set_base.e:302:		do
+src/test_set_base.e:308:		ensure
+src/test_set_base.e:316:		do
+src/test_set_base.e:322:		ensure
+src/test_set_base.e:330:		do
+src/test_set_base.e:336:		ensure
+src/test_set_base.e:344:		do
+src/test_set_base.e:350:		ensure
+src/test_set_base.e:358:		do
+src/test_set_base.e:364:		ensure
+src/test_set_base.e:372:		do
+src/test_set_base.e:378:		ensure
+src/test_set_base.e:382:feature -- Numeric assertions (REAL)
+src/test_set_base.e:386:		require
+src/test_set_base.e:390:		do
+src/test_set_base.e:400:		ensure
+src/test_set_base.e:408:		do
+src/test_set_base.e:416:		ensure
+src/test_set_base.e:424:		do
+src/test_set_base.e:432:		ensure
+src/test_set_base.e:438:		require
+src/test_set_base.e:442:		do
+src/test_set_base.e:453:		ensure
+src/test_set_base.e:457:feature -- String assertions
+src/test_set_base.e:463:		do
+src/test_set_base.e:470:		ensure
+src/test_set_base.e:478:		do
+src/test_set_base.e:485:		ensure
+src/test_set_base.e:493:		do
+src/test_set_base.e:500:		ensure
+src/test_set_base.e:508:		do
+src/test_set_base.e:515:		ensure
+src/test_set_base.e:523:		do
+src/test_set_base.e:530:		ensure
+src/test_set_base.e:538:		do
+src/test_set_base.e:543:		ensure
+src/test_set_base.e:551:		do
+src/test_set_base.e:559:		ensure
+src/test_set_base.e:567:		do
+src/test_set_base.e:576:		ensure
+src/test_set_base.e:585:		do
+src/test_set_base.e:590:		ensure
+src/test_set_base.e:594:feature -- Collection assertions
+src/test_set_base.e:602:		do
+src/test_set_base.e:617:		ensure
+src/test_set_base.e:627:		do
+src/test_set_base.e:642:		ensure
+src/test_set_base.e:651:		do
+src/test_set_base.e:660:		ensure
+src/test_set_base.e:669:		do
+src/test_set_base.e:678:		ensure
+src/test_set_base.e:686:		do
+src/test_set_base.e:694:		ensure
+src/test_set_base.e:698:feature {NONE} -- String diff implementation
+src/test_set_base.e:706:		do
+src/test_set_base.e:815:		do
+src/test_set_base.e:829:		do
+src/test_set_base_extended.e:3:		Extension points for TEST_SET_BASE to support feature-level fixtures.
+src/test_set_base_extended.e:6:		- on_prepare_feature / on_clean_feature hooks (called before/after each test feature)
+src/test_set_base_extended.e:13:		- If not overridden: default behavior (no per-feature cleanup)
+src/test_set_base_extended.e:14:		- If overridden: called before/after each test feature automatically by test runner
+src/test_set_base_extended.e:20:				feature
+src/test_set_base_extended.e:21:					on_prepare_feature do
+src/test_set_base_extended.e:22:						-- Reset test data, acquire per-feature resources
+src/test_set_base_extended.e:27:					on_clean_feature do
+src/test_set_base_extended.e:28:						-- Clean up test data, release per-feature resources
+src/test_set_base_extended.e:34:						do
+src/test_set_base_extended.e:35:							-- on_prepare_feature called before this
+src/test_set_base_extended.e:37:							-- on_clean_feature called after this
+src/test_set_base_extended.e:46:deferred class
+src/test_set_base_extended.e:52:feature -- Feature-Level Fixture Hooks
+src/test_set_base_extended.e:54:	on_prepare_feature
+src/test_set_base_extended.e:55:			-- Set up state for a single test feature (called before each test feature).
+src/test_set_base_extended.e:56:			-- Optional: override to customize per-feature setup.
+src/test_set_base_extended.e:57:		do
+src/test_set_base_extended.e:59:		ensure
+src/test_set_base_extended.e:63:	on_clean_feature
+src/test_set_base_extended.e:64:			-- Clean up state after a single test feature (called after each test feature).
+src/test_set_base_extended.e:65:			-- Optional: override to customize per-feature cleanup.
+src/test_set_base_extended.e:67:		do
+src/test_set_base_extended.e:69:		ensure
+src/test_set_base_extended.e:70:			-- State cleaned up from feature
+src/test_set_base_extended.e:73:feature -- Nested Fixture Support
+src/test_set_base_extended.e:81:			--    with_fixture (agent do
+src/test_set_base_extended.e:86:		require
+src/test_set_base_extended.e:88:		do
+src/test_set_base_extended.e:90:		ensure
+src/test_set_base_extended.e:94:invariant
+src/test_set_bridge.e:6:		Test classes in a test target will sometimes require access to features
+src/test_set_bridge.e:8:		required access features must be exported to some class that only the
+src/test_set_bridge.e:14:		(1) Find the feature group of the feature needing to be accessed by the
+src/test_set_bridge.e:18:				feature {TEST_SET_BRIDGE} -- Implementation
+src/test_set_bridge.e:20:					my_feature_needing_access do ... end
+src/test_set_bridge.e:25:			class to the require feature (above).
+src/test_set_bridge.e:34:feature -- Operations
+src/test_system.e:12:				feature
+src/test_system.e:13:					on_prepare_test_system do
+src/test_system.e:19:					on_clean_test_system do
+src/test_system.e:30:deferred class
+src/test_system.e:33:feature -- System-Level Hooks
+src/test_system.e:38:		do
+src/test_system.e:40:		ensure
+src/test_system.e:48:		do
+src/test_system.e:50:		ensure
