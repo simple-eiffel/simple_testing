@@ -695,6 +695,29 @@ feature -- Collection assertions
 			count_matches: a_collection.count = a_expected
 		end
 
+feature -- Timing
+
+	without_contracts (a_work: PROCEDURE)
+			-- Run `a_work' with contract checking OFF, then turn it back on
+			-- as it was - even when `a_work' raises.
+			--
+			-- For timing tests. A frame budget or a throughput limit is the
+			-- shipping build's (finalized, no assertions); with checking on,
+			-- every call also evaluates its preconditions, postconditions and
+			-- invariants, which is not what the budget measures. Wrap ONLY the
+			-- measured work: everything outside still runs under contracts,
+			-- and the test's own assert_* calls are not contracts.
+			-- (Larry, 2026-10-25: "Timing needs trump contracts.")
+		local
+			l_was, l_off: BOOLEAN
+		do
+			l_was := {ISE_RUNTIME}.check_assert (False)
+			a_work.call (Void)
+			l_off := {ISE_RUNTIME}.check_assert (l_was)
+		rescue
+			l_off := {ISE_RUNTIME}.check_assert (l_was)
+		end
+
 feature {NONE} -- String diff implementation
 
 	build_string_diff (a_tag: READABLE_STRING_GENERAL; a_expected, a_actual: READABLE_STRING_GENERAL): STRING_32

@@ -55,6 +55,9 @@ feature {NONE} -- Test Runners
 			-- Equality assertions
 			run_test (agent lib_tests.test_assert_equal, "test_assert_equal")
 			run_test (agent lib_tests.test_assert_not_equal, "test_assert_not_equal")
+			-- Timing without contracts
+			run_test (agent lib_tests.test_without_contracts_switches_checking_off_and_back, "test_without_contracts_switches_checking_off_and_back")
+			run_test (agent lib_tests.test_without_contracts_restores_after_an_exception, "test_without_contracts_restores_after_an_exception")
 		end
 
 feature {NONE} -- Implementation

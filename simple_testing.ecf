@@ -23,6 +23,9 @@
 	</target>
 	<target name="simple_testing_tests" extends="simple_testing">
 		<root class="TEST_APP" feature="make"/>
-		<cluster name="test_classes" location=".\test\" recursive="true"/>
+		<option warning="warning">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<cluster name="test_classes" location=".\testing\" recursive="true"/>
 	</target>
 </system>
