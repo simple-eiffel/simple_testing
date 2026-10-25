@@ -18,11 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   test. There, a 100,000-row grid's wheel frame went from 14.8 milliseconds
   with contracts on to 3.7 inside the wrapper, and the lean build takes 1.5.
 - Tests: `test_without_contracts_switches_checking_off_and_back` and
-  `test_without_contracts_restores_after_an_exception`.
-- The test target builds again. Its cluster pointed at a `test` folder that
-  does not exist (the tests are in `testing`), and it now repeats the
-  assertion option, because a target that extends another otherwise runs
-  its own clusters without contracts. 18 pass.
+  `test_without_contracts_restores_after_an_exception`, in the new class
+  `TEST_WITHOUT_CONTRACTS` (the suite in `test/`).
+- The test target repeats the assertion option, because a target that
+  extends another otherwise runs its own clusters without contracts.
+- An unused local in `TEST_ADVERSARIAL_STRESS.test_many_concurrent_fixtures`
+  is removed (the only compiler warning). 71 pass.
+- `testing/` holds an older 16-test runner that no target builds; the suite
+  is `test/`.
 
 
 ### Changed

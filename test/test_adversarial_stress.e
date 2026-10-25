@@ -191,7 +191,6 @@ feature -- Category 5: Resource Exhaustion Tests
 			-- Create 100 fixtures simultaneously to stress memory/resource management.
 		local
 			l_fixture1, l_fixture2, l_fixture3, l_fixture4, l_fixture5: TEST_FIXTURE_MOCK
-			i: INTEGER
 		do
 			-- Create multiple fixtures (simplified from array to individual fixtures)
 			create l_fixture1
