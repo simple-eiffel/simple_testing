@@ -15,9 +15,9 @@
         <h1>simple_testing</h1>
         <p class="tagline">Production-grade Design-by-Contract test framework for Eiffel</p>
         <div class="badges">
-            <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="v1.0.0">
+            <img src="https://img.shields.io/badge/Version-1.1.0-blue.svg" alt="v1.1.0">
             <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT">
-            <img src="https://img.shields.io/badge/Tests-73+-brightgreen.svg" alt="73+ tests">
+            <img src="https://img.shields.io/badge/Tests-71-brightgreen.svg" alt="71 tests">
             <img src="https://img.shields.io/badge/Coverage-100%25-brightgreen.svg" alt="100% coverage">
         </div>
     </header>
@@ -171,10 +171,11 @@ test_user_operations
         <section id="status">
             <h2>Production Status</h2>
             <p>
-                <strong>✅ v1.0.0 - Production Ready</strong>
+                <strong>✅ v1.1.0 - Production Ready</strong>
             </p>
             <ul>
-                <li>✅ 73+ tests passing (100% pass rate)</li>
+                <li>✅ 71 tests passing (100% pass rate)</li>
+                <li>✅ <code>TEST_SET_BASE.without_contracts (a_work)</code> runs the measured step of a timing test with contract checking off, then restores it, even when <code>a_work</code> raises; wrap only the measured work, because the shipping build has no assertions and the test's own <code>assert_*</code> calls are not contracts</li>
                 <li>✅ Zero compilation warnings (ZERO WARNINGS POLICY)</li>
                 <li>✅ Design by Contract verified throughout</li>
                 <li>✅ SCOOP + void-safe implementation</li>

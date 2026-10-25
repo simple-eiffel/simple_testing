@@ -7,7 +7,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 ![Eiffel 25.02](https://img.shields.io/badge/Eiffel-25.02-purple.svg)
 ![DBC: Contracts](https://img.shields.io/badge/DBC-Contracts-green.svg)
-![Tests: 73+](https://img.shields.io/badge/Tests-73+-blue.svg)
+![Tests: 71](https://img.shields.io/badge/Tests-71-blue.svg)
 ![Coverage: 100%](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)
 
 Advanced test framework for Eiffel with Design by Contract, comprehensive fixtures, and formal verification.
@@ -16,9 +16,9 @@ Part of the [Simple Eiffel](https://github.com/simple-eiffel) ecosystem.
 
 ## Status
 
-✅ **Production Ready** — v1.0.0
+✅ **Production Ready** — v1.1.0
 
-- **73+ tests passing** with 100% pass rate
+- **71 tests passing** with 100% pass rate
 - **Zero compilation warnings** (strict ZERO WARNINGS POLICY)
 - System-level, feature-level, and nested fixtures for complete test control
 - Mathematical Model Library (MML) integration for formal specification
@@ -211,6 +211,22 @@ test_state_transition
     end
 ```
 
+### Timing Without Contracts (`without_contracts`, 1.1.0)
+
+`TEST_SET_BASE.without_contracts (a_work)` runs `a_work` with contract checking off, then turns it back on as it was, even when `a_work` raises. It is for timing tests. A frame budget or a throughput limit belongs to the shipping build, which has no assertions; with checking on, every call also evaluates its preconditions, postconditions and invariants, which is not what the budget measures. Wrap only the measured work. Everything outside still runs under contracts, and the test's own `assert_*` calls are not contracts.
+
+From simple_widgets' 100,000-row grid test: the set-up and the scroll run
+under contracts, and only the frame being timed runs without them.
+
+```eiffel
+grid.handle_wheel (120).do_nothing                -- under contracts
+without_contracts (agent time_it (agent window.request_render))
+assert_true ("wheel scrolling holds 60 Hz", last_ms < 16.7)
+```
+
+Here `time_it` is the test's own routine: it reads a clock, calls the agent,
+and stores the elapsed milliseconds in `last_ms`.
+
 ### Exception-Safe Cleanup
 
 Cleanup is guaranteed even if test logic throws:
@@ -265,11 +281,7 @@ Add to your ECF configuration:
 
 ## Test Coverage
 
-**Total: 73+ tests**
-
-- **Core Tests (30+):** System-level, feature-level, nested fixtures, expanded assertions
-- **Adversarial Tests (24):** Edge cases, stress tests, resource exhaustion, precondition violations
-- **SCOOP Integration (19):** Concurrency compatibility, separate references, model query verification
+**Total: 71 tests**, registered in `test/test_app.e`: test system (5), test fixture (6), nested fixtures (7), expanded assertions (12), adversarial and stress (22), SCOOP integration (17), and `without_contracts` (2: it switches checking off and back, and restores it after an exception).
 
 **Result:** 100% pass rate, zero warnings
 

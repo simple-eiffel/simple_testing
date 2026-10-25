@@ -28,6 +28,11 @@ feature -- Initialization
 			print ("%N=== SCOOP INTEGRATION TESTS ===%N")
 			run_scoop_integration_tests
 
+			print ("%N=== TIMING WITHOUT CONTRACTS ===%N")
+			create without_contracts_tests
+			run_test (agent without_contracts_tests.test_without_contracts_switches_checking_off_and_back, "test_without_contracts_switches_checking_off_and_back")
+			run_test (agent without_contracts_tests.test_without_contracts_restores_after_an_exception, "test_without_contracts_restores_after_an_exception")
+
 			print ("%N========================%N")
 			print ("Results: " + passed.out + " passed, " + failed.out + " failed%N")
 
@@ -147,6 +152,7 @@ feature {NONE} -- Implementation
 	assertions_tests: TEST_EXPANDED_ASSERTIONS
 	adversarial_tests: TEST_ADVERSARIAL_STRESS
 	scoop_tests: TEST_SCOOP_INTEGRATION
+	without_contracts_tests: TEST_WITHOUT_CONTRACTS
 
 	passed: INTEGER
 	failed: INTEGER
